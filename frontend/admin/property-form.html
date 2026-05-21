@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MOVAI Admin - Imóvel</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="sidebar">
+      <div class="sidebar-header"><div class="logo">MOV<span>AI</span></div><span class="badge">Admin</span></div>
+      <nav class="sidebar-nav">
+        <div class="nav-section">Principal</div>
+        <a href="dashboard.html" class="nav-item" data-page="dashboard"><i class="fas fa-th-large"></i> Dashboard</a>
+        <div class="nav-section">Gestão</div>
+        <a href="properties.html" class="nav-item" data-page="properties"><i class="fas fa-building"></i> Imóveis</a>
+        <a href="leads.html" class="nav-item" data-page="leads"><i class="fas fa-user-plus"></i> Leads</a>
+        <a href="appointments.html" class="nav-item" data-page="appointments"><i class="fas fa-calendar-alt"></i> Agendamentos</a>
+        <div class="nav-section">Sistema</div>
+        <a href="users.html" class="nav-item" data-page="users"><i class="fas fa-users-cog"></i> Usuários</a>
+        <a href="chatbot.html" class="nav-item" data-page="chatbot"><i class="fas fa-robot"></i> Chatbot</a>
+        <a href="reports.html" class="nav-item" data-page="reports"><i class="fas fa-chart-bar"></i> Relatórios</a>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="user-avatar">U</div>
+        <div class="user-info"><div class="user-name">Usuário</div><div class="user-role">Admin</div></div>
+        <button class="logout-btn" title="Sair"><i class="fas fa-sign-out-alt"></i></button>
+      </div>
+    </aside>
+
+    <div class="main-content">
+      <header class="top-header">
+        <button class="menu-toggle"><i class="fas fa-bars"></i></button>
+        <h2 class="page-title" id="pageTitle">Novo Imóvel</h2>
+        <div class="header-actions">
+          <a href="properties.html" class="btn btn-outline btn-sm"><i class="fas fa-arrow-left"></i> Voltar</a>
+        </div>
+      </header>
+
+      <div class="page-content">
+        <div class="card">
+          <div class="card-body">
+            <form id="propertyForm">
+              <div class="form-row">
+                <div class="form-group" style="grid-column: 1 / -1">
+                  <label class="form-label">Título *</label>
+                  <input type="text" class="form-control" id="title" required placeholder="Ex: Apartamento de Luxo em Copacabana">
+                  <div class="form-error"></div>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Descrição</label>
+                <textarea class="form-control" id="description" rows="4" placeholder="Descreva o imóvel em detalhes..."></textarea>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">Tipo *</label>
+                  <select class="form-control" id="type" required>
+                    <option value="">Selecione</option>
+                    <option value="apartamento">Apartamento</option>
+                    <option value="casa">Casa</option>
+                    <option value="cobertura">Cobertura</option>
+                    <option value="terreno">Terreno</option>
+                    <option value="comercial">Comercial</option>
+                    <option value="rural">Rural</option>
+                  </select>
+                  <div class="form-error"></div>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Tipo de Transação</label>
+                  <select class="form-control" id="transaction_type">
+                    <option value="venda">Venda</option>
+                    <option value="aluguel">Aluguel</option>
+                    <option value="ambos">Ambos</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Status</label>
+                  <select class="form-control" id="status">
+                    <option value="disponivel">Disponível</option>
+                    <option value="reservado">Reservado</option>
+                    <option value="vendido">Vendido</option>
+                    <option value="alugado">Alugado</option>
+                    <option value="inativo">Inativo</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">Preço (R$) *</label>
+                  <input type="number" class="form-control" id="price" required placeholder="0.00" step="0.01" min="0">
+                  <div class="form-error"></div>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Quartos</label>
+                  <input type="number" class="form-control" id="bedrooms" placeholder="0" min="0">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Banheiros</label>
+                  <input type="number" class="form-control" id="bathrooms" placeholder="0" min="0">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Área (m²)</label>
+                  <input type="number" class="form-control" id="area" placeholder="0" min="0">
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">Endereço</label>
+                  <input type="text" class="form-control" id="address" placeholder="Rua, número">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Cidade</label>
+                  <input type="text" class="form-control" id="city" placeholder="Cidade">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Estado</label>
+                  <input type="text" class="form-control" id="state" placeholder="UF" maxlength="2">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">CEP</label>
+                  <input type="text" class="form-control" id="zip_code" placeholder="00000-000">
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">Vagas de Garagem</label>
+                  <input type="number" class="form-control" id="parking_spots" placeholder="0" min="0">
+                </div>
+                <div class="form-group">
+                  <div class="form-check" style="margin-top:1.8rem">
+                    <input type="checkbox" id="featured">
+                    <label for="featured">Imóvel Destaque</label>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Image Upload -->
+              <div class="form-group">
+                <label class="form-label">Imagens</label>
+                <div class="image-upload-area" id="uploadArea" onclick="document.getElementById('imageInput').click()">
+                  <i class="fas fa-cloud-upload-alt"></i>
+                  <p>Clique ou arraste imagens aqui</p>
+                  <p style="font-size:.75rem;color:var(--gray-400)">JPG, PNG ou WebP • Máx 5MB por arquivo</p>
+                </div>
+                <input type="file" id="imageInput" multiple accept="image/jpeg,image/png,image/webp" style="display:none">
+                <div class="image-preview-grid" id="imagePreview"></div>
+              </div>
+
+              <div style="display:flex;gap:.75rem;justify-content:flex-end;margin-top:1.5rem">
+                <a href="properties.html" class="btn btn-outline">Cancelar</a>
+                <button type="submit" class="btn btn-primary" id="saveBtn"><i class="fas fa-save"></i> Salvar Imóvel</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/admin.js"></script>
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const propertyId = params.get('id');
+    const isEdit = !!propertyId;
+    let existingImages = [];
+    let newFiles = [];
+
+    if (isEdit) {
+      document.getElementById('pageTitle').textContent = 'Editar Imóvel';
+      document.title = 'MOVAI Admin - Editar Imóvel';
+      loadProperty();
+    }
+
+    async function loadProperty() {
+      try {
+        const res = await Api.get(`/properties/${propertyId}`);
+        const p = res.data;
+        document.getElementById('title').value = p.title || '';
+        document.getElementById('description').value = p.description || '';
+        document.getElementById('type').value = p.type || '';
+        document.getElementById('transaction_type').value = p.transaction_type || 'venda';
+        document.getElementById('status').value = p.status || 'disponivel';
+        document.getElementById('price').value = p.price || '';
+        document.getElementById('bedrooms').value = p.bedrooms || '';
+        document.getElementById('bathrooms').value = p.bathrooms || '';
+        document.getElementById('area').value = p.area || '';
+        document.getElementById('address').value = p.address || '';
+        document.getElementById('city').value = p.city || '';
+        document.getElementById('state').value = p.state || '';
+        document.getElementById('zip_code').value = p.zip_code || '';
+        document.getElementById('parking_spots').value = p.parking_spots || '';
+        document.getElementById('featured').checked = !!p.featured;
+
+        existingImages = p.images || [];
+        renderExistingImages();
+      } catch (err) {
+        Toast.error('Erro ao carregar imóvel');
+        console.error(err);
+      }
+    }
+
+    function renderExistingImages() {
+      const preview = document.getElementById('imagePreview');
+      const existingHtml = existingImages.map((img, i) => {
+        const src = img.startsWith('http') ? img : `http://localhost:3001${img}`;
+        return `
+          <div class="image-preview-item">
+            <img src="${src}" onerror="this.src='data:image/svg+xml,<svg xmlns=%22https://pbs.twimg.com/media/DMbLT9bUIAA1yB7?format=jpg&name=small width=%22100%22 height=%22100%22><rect fill=%22%23eee%22 width=%22100%22 height=%22100%22/></svg>'">
+            <button type="button" class="remove-btn" onclick="removeExistingImage(${i})"><i class="fas fa-times"></i></button>
+          </div>`;
+      }).join('');
+      const newHtml = newFiles.map((f, i) => `
+        <div class="image-preview-item">
+          <img src="${URL.createObjectURL(f)}">
+          <button type="button" class="remove-btn" onclick="removeNewFile(${i})"><i class="fas fa-times"></i></button>
+        </div>
+      `).join('');
+      preview.innerHTML = existingHtml + newHtml;
+    }
+
+    function removeExistingImage(index) { existingImages.splice(index, 1); renderExistingImages(); }
+    function removeNewFile(index) { newFiles.splice(index, 1); renderExistingImages(); }
+
+    // File input
+    document.getElementById('imageInput').addEventListener('change', (e) => {
+      const files = Array.from(e.target.files);
+      newFiles.push(...files);
+      renderExistingImages();
+      e.target.value = '';
+    });
+
+    // Drag and drop
+    const uploadArea = document.getElementById('uploadArea');
+    uploadArea.addEventListener('dragover', (e) => { e.preventDefault(); uploadArea.style.borderColor = 'var(--secondary)'; });
+    uploadArea.addEventListener('dragleave', () => { uploadArea.style.borderColor = ''; });
+    uploadArea.addEventListener('drop', (e) => {
+      e.preventDefault();
+      uploadArea.style.borderColor = '';
+      const files = Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('image/'));
+      newFiles.push(...files);
+      renderExistingImages();
+    });
+
+    // Submit
+    document.getElementById('propertyForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!validateForm('propertyForm')) return;
+
+      const saveBtn = document.getElementById('saveBtn');
+      saveBtn.disabled = true;
+      saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Salvando...';
+
+      const data = {
+        title: document.getElementById('title').value,
+        description: document.getElementById('description').value,
+        type: document.getElementById('type').value,
+        transaction_type: document.getElementById('transaction_type').value,
+        status: document.getElementById('status').value,
+        price: parseFloat(document.getElementById('price').value),
+        bedrooms: parseInt(document.getElementById('bedrooms').value) || 0,
+        bathrooms: parseInt(document.getElementById('bathrooms').value) || 0,
+        area: parseFloat(document.getElementById('area').value) || 0,
+        address: document.getElementById('address').value,
+        city: document.getElementById('city').value,
+        state: document.getElementById('state').value,
+        zip_code: document.getElementById('zip_code').value,
+        parking_spots: parseInt(document.getElementById('parking_spots').value) || 0,
+        featured: document.getElementById('featured').checked ? 1 : 0,
+        images: existingImages
+      };
+
+      try {
+        let savedId;
+        if (isEdit) {
+          await Api.put(`/properties/${propertyId}`, data);
+          savedId = propertyId;
+          Toast.success('Imóvel atualizado com sucesso!');
+        } else {
+          const res = await Api.post('/properties', data);
+          savedId = res.data.id;
+          Toast.success('Imóvel criado com sucesso!');
+        }
+
+        // Upload new images
+        if (newFiles.length && savedId) {
+          const formData = new FormData();
+          newFiles.forEach(f => formData.append('images', f));
+          try {
+            await Api.upload(`/properties/${savedId}/upload-images`, formData);
+          } catch (uploadErr) {
+            Toast.warning('Imóvel salvo, mas erro ao enviar imagens: ' + uploadErr.message);
+          }
+        }
+
+        setTimeout(() => { window.location.href = 'properties.html'; }, 1000);
+      } catch (err) {
+        Toast.error('Erro ao salvar: ' + err.message);
+      } finally {
+        saveBtn.disabled = false;
+        saveBtn.innerHTML = '<i class="fas fa-save"></i> Salvar Imóvel';
+      }
+    });
+  </script>
+</body>
+</html>

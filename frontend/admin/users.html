@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MOVAI Admin - Usuários</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="sidebar">
+      <div class="sidebar-header"><div class="logo">MOV<span>AI</span></div><span class="badge">Admin</span></div>
+      <nav class="sidebar-nav">
+        <div class="nav-section">Principal</div>
+        <a href="dashboard.html" class="nav-item" data-page="dashboard"><i class="fas fa-th-large"></i> Dashboard</a>
+        <div class="nav-section">Gestão</div>
+        <a href="properties.html" class="nav-item" data-page="properties"><i class="fas fa-building"></i> Imóveis</a>
+        <a href="leads.html" class="nav-item" data-page="leads"><i class="fas fa-user-plus"></i> Leads</a>
+        <a href="appointments.html" class="nav-item" data-page="appointments"><i class="fas fa-calendar-alt"></i> Agendamentos</a>
+        <div class="nav-section">Sistema</div>
+        <a href="users.html" class="nav-item" data-page="users"><i class="fas fa-users-cog"></i> Usuários</a>
+        <a href="chatbot.html" class="nav-item" data-page="chatbot"><i class="fas fa-robot"></i> Chatbot</a>
+        <a href="reports.html" class="nav-item" data-page="reports"><i class="fas fa-chart-bar"></i> Relatórios</a>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="user-avatar">U</div>
+        <div class="user-info"><div class="user-name">Usuário</div><div class="user-role">Admin</div></div>
+        <button class="logout-btn" title="Sair"><i class="fas fa-sign-out-alt"></i></button>
+      </div>
+    </aside>
+
+    <div class="main-content">
+      <header class="top-header">
+        <button class="menu-toggle"><i class="fas fa-bars"></i></button>
+        <h2 class="page-title">Usuários</h2>
+        <div class="header-actions"><div class="header-search"><i class="fas fa-search"></i><input type="text" placeholder="Buscar..." id="globalSearch"></div></div>
+      </header>
+
+      <div class="page-content">
+        <div class="toolbar">
+          <div class="filters-bar">
+            <div class="search-input"><i class="fas fa-search"></i><input type="text" class="form-control" id="searchInput" placeholder="Buscar usuários..."></div>
+            <select class="form-control" id="filterRole">
+              <option value="">Todos os Papéis</option>
+              <option value="admin">Admin</option>
+              <option value="corretor">Corretor</option>
+              <option value="usuario">Usuário</option>
+            </select>
+          </div>
+          <button class="btn btn-primary" onclick="openUserModal()"><i class="fas fa-plus"></i> Novo Usuário</button>
+        </div>
+
+        <div class="card">
+          <div class="card-body no-padding">
+            <div class="table-wrapper">
+              <table>
+                <thead><tr><th>ID</th><th>Nome</th><th>E-mail</th><th>Telefone</th><th>Papel</th><th>Status</th><th>Data</th><th>Ações</th></tr></thead>
+                <tbody id="usersBody"><tr><td colspan="8"><div class="page-loading"><div class="spinner"></div></div></td></tr></tbody>
+              </table>
+            </div>
+          </div>
+          <div class="card-footer">
+            <span class="page-info" id="pageInfo">-</span>
+            <div class="pagination" id="pagination"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- User Modal -->
+  <div class="modal-overlay" id="userModal">
+    <div class="modal">
+      <div class="modal-header"><h3 id="userModalTitle">Novo Usuário</h3><button class="modal-close"><i class="fas fa-times"></i></button></div>
+      <div class="modal-body">
+        <form id="userForm">
+          <input type="hidden" id="userId">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Nome *</label>
+              <input type="text" class="form-control" id="userName" required><div class="form-error"></div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">E-mail *</label>
+              <input type="email" class="form-control" id="userEmail" required><div class="form-error"></div>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" id="passwordLabel">Senha *</label>
+              <input type="password" class="form-control" id="userPassword"><div class="form-error"></div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Telefone</label>
+              <input type="text" class="form-control" id="userPhone">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Papel</label>
+            <select class="form-control" id="userRole">
+              <option value="corretor">Corretor</option>
+              <option value="admin">Administrador</option>
+              <option value="usuario">Usuário</option>
+            </select>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="Modal.close('userModal')">Cancelar</button>
+        <button class="btn btn-primary" id="saveUser"><i class="fas fa-save"></i> Salvar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete Modal -->
+  <div class="modal-overlay" id="deleteModal">
+    <div class="modal modal-sm">
+      <div class="modal-header"><h3>Confirmar Exclusão</h3><button class="modal-close"><i class="fas fa-times"></i></button></div>
+      <div class="modal-body"><p style="text-align:center"><i class="fas fa-exclamation-triangle" style="font-size:2.5rem;color:var(--danger);display:block;margin-bottom:1rem"></i>Tem certeza que deseja desativar este usuário?</p></div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="Modal.close('deleteModal')">Cancelar</button>
+        <button class="btn btn-danger" id="confirmDelete"><i class="fas fa-trash"></i> Desativar</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/admin.js"></script>
+  <script>
+    let currentPage = 1;
+    let deleteId = null;
+
+    // Check admin access
+    if (!Auth.isAdmin()) {
+      Toast.error('Acesso restrito a administradores');
+      setTimeout(() => window.location.href = 'dashboard.html', 1500);
+    }
+
+    async function loadUsers(page = 1) {
+      currentPage = page;
+      const search = document.getElementById('searchInput').value;
+      const role = document.getElementById('filterRole').value;
+      let url = `/users?page=${page}&limit=10`;
+      if (search) url += `&search=${encodeURIComponent(search)}`;
+      if (role) url += `&role=${role}`;
+
+      const tbody = document.getElementById('usersBody');
+      try {
+        const res = await Api.get(url);
+        const items = res.data?.users || res.data || [];
+        const pagination = res.pagination || {};
+        if (!items.length) {
+          tbody.innerHTML = '<tr><td colspan="8"><div class="empty-state"><i class="fas fa-users"></i><h4>Nenhum usuário encontrado</h4></div></td></tr>';
+        } else {
+          const roleBadge = { admin: 'badge-red', corretor: 'badge-blue', usuario: 'badge-gray' };
+          tbody.innerHTML = items.map(u => `
+            <tr>
+              <td>#${u.id}</td>
+              <td><div style="display:flex;align-items:center;gap:.5rem">
+                <div class="user-avatar" style="width:32px;height:32px;font-size:.75rem;background:var(--secondary);color:var(--white);border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:600">${getInitials(u.name)}</div>
+                <strong>${u.name}</strong>
+              </div></td>
+              <td>${u.email}</td>
+              <td>${u.phone || '-'}</td>
+              <td><span class="badge ${roleBadge[u.role] || 'badge-gray'}">${u.role}</span></td>
+              <td>${u.active !== 0 ? '<span class="badge badge-green">Ativo</span>' : '<span class="badge badge-gray">Inativo</span>'}</td>
+              <td>${formatDate(u.created_at)}</td>
+              <td>
+                <div class="action-btns">
+                  <button class="btn btn-icon btn-ghost sm" onclick="editUser(${u.id})"><i class="fas fa-pen"></i></button>
+                  <button class="btn btn-icon btn-ghost sm" onclick="confirmDelete(${u.id})"><i class="fas fa-trash" style="color:var(--danger)"></i></button>
+                </div>
+              </td>
+            </tr>
+          `).join('');
+        }
+        document.getElementById('pageInfo').textContent = `${items.length} de ${pagination.total || items.length}`;
+        renderPagination(document.getElementById('pagination'), pagination.page || 1, pagination.totalPages || 1, loadUsers);
+      } catch (err) { Toast.error('Erro ao carregar usuários'); }
+    }
+
+    function openUserModal(data = null) {
+      document.getElementById('userModalTitle').textContent = data ? 'Editar Usuário' : 'Novo Usuário';
+      document.getElementById('userId').value = data ? data.id : '';
+      document.getElementById('userName').value = data ? data.name : '';
+      document.getElementById('userEmail').value = data ? data.email : '';
+      document.getElementById('userPassword').value = '';
+      document.getElementById('userPhone').value = data ? (data.phone || '') : '';
+      document.getElementById('userRole').value = data ? data.role : 'corretor';
+      const pwLabel = document.getElementById('passwordLabel');
+      const pwInput = document.getElementById('userPassword');
+      if (data) { pwLabel.textContent = 'Nova Senha (opcional)'; pwInput.removeAttribute('required'); }
+      else { pwLabel.textContent = 'Senha *'; pwInput.setAttribute('required', ''); }
+      Modal.open('userModal');
+    }
+
+    async function editUser(id) {
+      try { const res = await Api.get(`/users/${id}`); openUserModal(res.data); }
+      catch (err) { Toast.error('Erro ao carregar'); }
+    }
+
+    document.getElementById('saveUser').addEventListener('click', async () => {
+      const id = document.getElementById('userId').value;
+      if (!id && !document.getElementById('userPassword').value) {
+        Toast.error('Senha é obrigatória para novo usuário');
+        return;
+      }
+      const data = {
+        name: document.getElementById('userName').value,
+        email: document.getElementById('userEmail').value,
+        phone: document.getElementById('userPhone').value,
+        role: document.getElementById('userRole').value,
+      };
+      const pwd = document.getElementById('userPassword').value;
+      if (pwd) data.password = pwd;
+      try {
+        if (id) { await Api.put(`/users/${id}`, data); Toast.success('Usuário atualizado!'); }
+        else { await Api.post('/users', data); Toast.success('Usuário criado!'); }
+        Modal.close('userModal');
+        loadUsers(currentPage);
+      } catch (err) { Toast.error('Erro: ' + err.message); }
+    });
+
+    function confirmDelete(id) { deleteId = id; Modal.open('deleteModal'); }
+    document.getElementById('confirmDelete').addEventListener('click', async () => {
+      if (!deleteId) return;
+      try { await Api.delete(`/users/${deleteId}`); Toast.success('Usuário desativado'); Modal.close('deleteModal'); loadUsers(currentPage); }
+      catch (err) { Toast.error('Erro: ' + err.message); }
+      deleteId = null;
+    });
+
+    document.getElementById('searchInput').addEventListener('input', debounce(() => loadUsers(1)));
+    document.getElementById('filterRole').addEventListener('change', () => loadUsers(1));
+    loadUsers();
+  </script>
+</body>
+</html>

@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="MOVAI — Encontre o imóvel dos seus sonhos com inteligência artificial. Busca inteligente, chatbot IA e agendamento online.">
+  <title>MOVAI — Imóveis Inteligentes</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="../css/global.css">
+  <link rel="stylesheet" href="../css/home.css">
+
+  <!-- Inline styles for new components -->
+  <style>
+    /* ===== CONTACT SECTION ===== */
+    .contact-section {
+      background: linear-gradient(135deg, #f0f4ff 0%, #e8eeff 100%);
+    }
+    .contact-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 48px;
+      align-items: start;
+    }
+    .contact-info { display: flex; flex-direction: column; gap: 24px; }
+    .contact-info h3 { font-size: 1.75rem; color: var(--color-primary); }
+    .contact-info p { color: var(--color-text-secondary); line-height: 1.7; }
+    .contact-detail {
+      display: flex; align-items: center; gap: 16px;
+      padding: 16px; background: #fff; border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,.05); transition: transform .2s;
+    }
+    .contact-detail:hover { transform: translateY(-2px); }
+    .contact-detail-icon {
+      width: 48px; height: 48px; border-radius: 12px;
+      background: var(--color-primary); color: #fff;
+      display: flex; align-items: center; justify-content: center; font-size: 18px;
+      flex-shrink: 0;
+    }
+    .contact-detail strong { display: block; color: var(--color-text); margin-bottom: 2px; }
+    .contact-detail span { color: var(--color-text-secondary); font-size: 14px; }
+
+    .contact-form-card {
+      background: #fff; padding: 36px; border-radius: 16px;
+      box-shadow: 0 8px 30px rgba(0,0,0,.08);
+    }
+    .contact-form-card h3 { margin-bottom: 24px; color: var(--color-primary); }
+    .form-group { margin-bottom: 18px; }
+    .form-group label {
+      display: block; margin-bottom: 6px; font-weight: 500;
+      font-size: 14px; color: var(--color-text);
+    }
+    .form-group input, .form-group textarea, .form-group select {
+      width: 100%; padding: 12px 16px; border: 2px solid #e2e8f0;
+      border-radius: 10px; font-size: 14px; font-family: 'Inter', sans-serif;
+      transition: border-color .2s, box-shadow .2s; background: #fff;
+      box-sizing: border-box;
+    }
+    .form-group input:focus, .form-group textarea:focus, .form-group select:focus {
+      outline: none; border-color: var(--color-primary);
+      box-shadow: 0 0 0 3px rgba(30,58,138,.1);
+    }
+    .form-group textarea { resize: vertical; min-height: 100px; }
+    .form-group input.field-error, .form-group textarea.field-error {
+      border-color: #DC2626;
+    }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+    /* ===== SCHEDULE VISIT MODAL ===== */
+    .modal { display: none; position: fixed; inset: 0; z-index: 9999; align-items: center; justify-content: center; }
+    .modal.active { display: flex; }
+    .modal-overlay { position: absolute; inset: 0; background: rgba(0,0,0,.5); backdrop-filter: blur(4px); }
+    .modal-content {
+      position: relative; background: #fff; border-radius: 20px; padding: 36px;
+      max-width: 520px; width: 90%; max-height: 90vh; overflow-y: auto;
+      box-shadow: 0 20px 60px rgba(0,0,0,.2); animation: modalIn .3s ease;
+    }
+    @keyframes modalIn { from { transform: scale(.9) translateY(20px); opacity: 0; } to { transform: scale(1) translateY(0); opacity: 1; } }
+    .modal-close {
+      position: absolute; top: 16px; right: 16px; background: none; border: none;
+      font-size: 20px; cursor: pointer; color: #94a3b8; width: 36px; height: 36px;
+      border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      transition: all .2s;
+    }
+    .modal-close:hover { background: #f1f5f9; color: #1e293b; }
+    .modal-content h3 { font-size: 1.5rem; margin-bottom: 6px; color: var(--color-primary); }
+    .modal-property-title { color: var(--color-text-secondary); font-size: 14px; margin-bottom: 24px; }
+
+    /* ===== CHATBOT PANEL ===== */
+    #chatbot-panel {
+      position: fixed; bottom: 100px; right: 20px; width: 380px; height: 520px;
+      background: #fff; border-radius: 20px; box-shadow: 0 16px 50px rgba(0,0,0,.15);
+      display: none; flex-direction: column; z-index: 9998; overflow: hidden;
+      animation: chatIn .3s ease;
+    }
+    #chatbot-panel.active { display: flex; }
+    @keyframes chatIn { from { transform: translateY(20px) scale(.95); opacity: 0; } to { transform: translateY(0) scale(1); opacity: 1; } }
+    .chatbot-header {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 16px 20px; background: var(--color-primary); color: #fff;
+    }
+    .chatbot-header-info { display: flex; align-items: center; gap: 12px; }
+    .chatbot-avatar {
+      width: 40px; height: 40px; border-radius: 50%; background: rgba(255,255,255,.2);
+      display: flex; align-items: center; justify-content: center; font-size: 18px;
+    }
+    .chatbot-header-info strong { display: block; font-size: 15px; }
+    .chatbot-header-info small { opacity: .8; font-size: 12px; }
+    .chatbot-close { background: none; border: none; color: #fff; font-size: 18px; cursor: pointer; padding: 4px; }
+    .chatbot-messages {
+      flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 12px;
+      background: #f8fafc;
+    }
+    .chat-message { display: flex; }
+    .chat-message.user { justify-content: flex-end; }
+    .chat-bubble {
+      max-width: 80%; padding: 10px 14px; border-radius: 16px; font-size: 13px; line-height: 1.5;
+    }
+    .chat-message.bot .chat-bubble {
+      background: #fff; color: #1e293b; border-bottom-left-radius: 4px;
+      box-shadow: 0 1px 3px rgba(0,0,0,.08);
+    }
+    .chat-message.user .chat-bubble {
+      background: var(--color-primary); color: #fff; border-bottom-right-radius: 4px;
+    }
+    .chatbot-input-area {
+      display: flex; gap: 8px; padding: 12px 16px; border-top: 1px solid #e2e8f0; background: #fff;
+    }
+    .chatbot-input-area input {
+      flex: 1; border: 2px solid #e2e8f0; border-radius: 24px; padding: 10px 16px;
+      font-size: 13px; outline: none; font-family: 'Inter', sans-serif;
+    }
+    .chatbot-input-area input:focus { border-color: var(--color-primary); }
+    .chatbot-input-area button {
+      width: 40px; height: 40px; border-radius: 50%; border: none;
+      background: var(--color-primary); color: #fff; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; font-size: 14px;
+      transition: background .2s;
+    }
+    .chatbot-input-area button:hover { background: var(--color-primary-dark, #152e6b); }
+
+    /* ===== PROPERTY CARD SCHEDULE BUTTON ===== */
+    .property-actions {
+      display: flex; gap: 8px; padding: 0 20px 16px;
+    }
+    .property-actions .btn { flex: 1; text-align: center; font-size: 13px; padding: 8px 12px; border-radius: 8px; text-decoration: none; }
+    .property-actions .btn-schedule-visit {
+      background: var(--color-primary); color: #fff; border: none; cursor: pointer;
+      font-family: 'Inter', sans-serif; font-weight: 500; transition: background .2s;
+    }
+    .property-actions .btn-schedule-visit:hover { background: var(--color-primary-dark, #152e6b); }
+    .property-actions .btn-details {
+      background: transparent; color: var(--color-primary); border: 2px solid var(--color-primary);
+      font-weight: 500; transition: all .2s;
+    }
+    .property-actions .btn-details:hover { background: var(--color-primary); color: #fff; }
+
+    @media (max-width: 768px) {
+      .contact-grid { grid-template-columns: 1fr; }
+      .form-row { grid-template-columns: 1fr; }
+      #chatbot-panel { width: calc(100% - 32px); right: 16px; bottom: 90px; height: 60vh; }
+    }
+    @media (max-width: 480px) {
+      .contact-form-card { padding: 24px; }
+      .property-actions { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ==================== NAVBAR ==================== -->
+  <nav class="navbar" id="navbar">
+    <div class="container">
+      <a href="#" class="navbar-logo">
+        <i class="fa-solid fa-building"></i> MOV<span>AI</span>
+      </a>
+
+      <div class="navbar-links">
+        <a href="#hero">Início</a>
+        <a href="#properties">Imóveis</a>
+        <a href="#how-it-works">Como Funciona</a>
+        <a href="#ai-features">IA</a>
+        <a href="#contact">Contato</a>
+      </div>
+
+      <div class="navbar-actions">
+        <a href="../admin/login.html" class="btn btn-outline btn-sm">Entrar</a>
+        <a href="cadasatro.html" class="btn btn-primary btn-sm">Cadastre-se</a>
+      </div>
+
+      <button class="navbar-toggle" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ==================== HERO ==================== -->
+  <section class="hero" id="hero">
+    <div class="hero-bg-shapes">
+      <div class="shape shape-1"></div>
+      <div class="shape shape-2"></div>
+      <div class="shape shape-3"></div>
+    </div>
+
+    <!-- Floating badges -->
+    <div class="hero-float hero-float-1">
+      <div class="float-icon"><i class="fa-solid fa-robot"></i></div>
+      <div>
+        <strong>IA Ativa</strong><br>
+        <small>Buscando imóveis…</small>
+      </div>
+    </div>
+    <div class="hero-float hero-float-2">
+      <div class="float-icon"><i class="fa-solid fa-shield-halved"></i></div>
+      <div>
+        <strong>100% Seguro</strong><br>
+        <small>Dados protegidos</small>
+      </div>
+    </div>
+
+    <div class="hero-content">
+      <div class="hero-badge">
+        <i class="fa-solid fa-sparkles"></i>
+        Powered by Inteligência Artificial
+      </div>
+
+      <h1>Encontre o imóvel dos seus <em>sonhos com IA</em></h1>
+
+      <p class="hero-subtitle">
+        Nossa plataforma usa inteligência artificial para encontrar o imóvel perfeito para você. 
+        Busca inteligente, recomendações personalizadas e agendamento online.
+      </p>
+
+      <!-- Search Box -->
+      <form class="hero-search" onsubmit="return false;">
+        <div class="search-field">
+          <i class="fa-solid fa-home"></i>
+          <select>
+            <option value="">Tipo</option>
+            <option>Apartamento</option>
+            <option>Casa</option>
+            <option>Cobertura</option>
+            <option>Terreno</option>
+          </select>
+        </div>
+        <div class="search-field">
+          <i class="fa-solid fa-location-dot"></i>
+          <input type="text" placeholder="Localização">
+        </div>
+        <div class="search-field">
+          <i class="fa-solid fa-dollar-sign"></i>
+          <select>
+            <option value="">Preço</option>
+            <option>Até R$ 300 mil</option>
+            <option>R$ 300–600 mil</option>
+            <option>R$ 600 mil–1 M</option>
+            <option>Acima de R$ 1 M</option>
+          </select>
+        </div>
+        <button class="btn btn-primary" type="submit">
+          <i class="fa-solid fa-magnifying-glass"></i> Buscar
+        </button>
+      </form>
+    </div>
+  </section>
+
+  <!-- ==================== STATS BAR ==================== -->
+  <section class="stats-bar">
+    <div class="container">
+      <div class="stat-item reveal">
+        <div class="stat-number" data-count="500" data-suffix="+">0</div>
+        <div class="stat-label">Imóveis Disponíveis</div>
+      </div>
+      <div class="stat-item reveal delay-1">
+        <div class="stat-number" data-count="1200" data-suffix="+">0</div>
+        <div class="stat-label">Clientes Satisfeitos</div>
+      </div>
+      <div class="stat-item reveal delay-2">
+        <div class="stat-number" data-count="98" data-suffix="%">0</div>
+        <div class="stat-label">Taxa de Satisfação</div>
+      </div>
+      <div class="stat-item reveal delay-3">
+        <div class="stat-number" data-count="15" data-suffix="+">0</div>
+        <div class="stat-label">Cidades Atendidas</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== FEATURED PROPERTIES ==================== -->
+  <section class="section properties" id="properties">
+    <div class="container">
+      <div class="section-header reveal">
+        <span class="section-label">Destaques</span>
+        <h2>Imóveis em Destaque</h2>
+        <p>Selecionados pela nossa inteligência artificial com base nas tendências do mercado.</p>
+      </div>
+
+      <div class="carousel-wrapper">
+        <div class="carousel-track">
+
+          <!-- Card 1 -->
+          <div class="property-card reveal-scale" data-property-id="1">
+            <div class="property-img">
+              <img src="/frontend/assets/images/apt-luxo-jardins-capa.jpg" alt="Apartamento Centro" loading="lazy">
+              <span class="property-badge">Destaque</span>
+              <button class="property-favorite" aria-label="Favoritar"><i class="fa-regular fa-heart"></i></button>
+            </div>
+            <div class="property-info">
+              <div class="property-price">R$ 1.454.000</div>
+              <div class="property-title">Apartamento de Luxo Jardins</div>
+              <div class="property-location"><i class="fa-solid fa-location-dot"></i> São Paulo, SP</div>
+              <div class="property-features">
+                <span class="property-feature"><i class="fa-solid fa-bed"></i> 3 Quartos</span>
+                <span class="property-feature"><i class="fa-solid fa-bath"></i> 2 Banheiros</span>
+                <span class="property-feature"><i class="fa-solid fa-ruler-combined"></i> 92m²</span>
+              </div>
+            </div>
+            <div class="property-actions">
+              <a href="imovel.html?id=1" class="btn btn-details"><i class="fa-solid fa-eye"></i> Detalhes</a>
+              <button class="btn btn-schedule-visit" data-property-id="1" data-property-title="Apartamento Moderno - Centro">
+                <i class="fa-solid fa-calendar-check"></i> Agendar Visita
+              </button>
+            </div>
+          </div>
+
+          <!-- Card 2 -->
+          <div class="property-card reveal-scale delay-1" data-property-id="2">
+            <div class="property-img">
+              <img src="/frontend/assets/images/casa-luxo-campinas.jpg" alt="Casa Jardins" loading="lazy">
+              <span class="property-badge">Novo</span>
+              <button class="property-favorite" aria-label="Favoritar"><i class="fa-regular fa-heart"></i></button>
+            </div>
+            <div class="property-info">
+              <div class="property-price">R$ 1.250.000</div>
+              <div class="property-title">Casa Espaçosa - Jardins</div>
+              <div class="property-location"><i class="fa-solid fa-location-dot"></i> Campinas, SP</div>
+              <div class="property-features">
+                <span class="property-feature"><i class="fa-solid fa-bed"></i> 4 Quartos</span>
+                <span class="property-feature"><i class="fa-solid fa-bath"></i> 3 Banheiros</span>
+                <span class="property-feature"><i class="fa-solid fa-ruler-combined"></i> 210m²</span>
+              </div>
+            </div>
+            <div class="property-actions">
+              <a href="imovel.html?id=2" class="btn btn-details"><i class="fa-solid fa-eye"></i> Detalhes</a>
+              <button class="btn btn-schedule-visit" data-property-id="2" data-property-title="Casa Espaçosa - Jardins">
+                <i class="fa-solid fa-calendar-check"></i> Agendar Visita
+              </button>
+            </div>
+          </div>
+
+          <!-- Card 3 -->
+          <div class="property-card reveal-scale delay-2" data-property-id="3">
+            <div class="property-img">
+              <img src="https://i.ytimg.com/vi/DCLyIyd6Fyc/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLDrYmFjJz9Hx6RfPug4ypDXW42InA" alt="Cobertura Duplex" loading="lazy">
+              <span class="property-badge">Premium</span>
+              <button class="property-favorite" aria-label="Favoritar"><i class="fa-regular fa-heart"></i></button>
+            </div>
+            <div class="property-info">
+              <div class="property-price">R$ 2.100.000</div>
+              <div class="property-title">Cobertura Duplex - Vista Mar</div>
+              <div class="property-location"><i class="fa-solid fa-location-dot"></i> Florianópolis, SC</div>
+              <div class="property-features">
+                <span class="property-feature"><i class="fa-solid fa-bed"></i> 4 Quartos</span>
+                <span class="property-feature"><i class="fa-solid fa-bath"></i> 4 Banheiros</span>
+                <span class="property-feature"><i class="fa-solid fa-ruler-combined"></i> 280m²</span>
+              </div>
+            </div>
+            <div class="property-actions">
+              <a href="imovel.html?id=3" class="btn btn-details"><i class="fa-solid fa-eye"></i> Detalhes</a>
+              <button class="btn btn-schedule-visit" data-property-id="3" data-property-title="Cobertura Duplex - Vista Mar">
+                <i class="fa-solid fa-calendar-check"></i> Agendar Visita
+              </button>
+            </div>
+          </div>
+
+          <!-- Card 4 -->
+          <div class="property-card reveal-scale" data-property-id="4">
+            <div class="property-img">
+              <img src="/frontend/assets/images/casa-luxo-moema.jpg" alt="Studio Compacto" loading="lazy">
+              <span class="property-badge">Ótimo Preço</span>
+              <button class="property-favorite" aria-label="Favoritar"><i class="fa-regular fa-heart"></i></button>
+            </div>
+            <div class="property-info">
+              <div class="property-price">R$ 4.220.000</div>
+              <div class="property-title">Cobertura Duplex Moema - Vila Olimpia</div>
+              <div class="property-location"><i class="fa-solid fa-location-dot"></i> São Paulo, SP</div>
+              <div class="property-features">
+                <span class="property-feature"><i class="fa-solid fa-bed"></i> 3 Quartos</span>
+                <span class="property-feature"><i class="fa-solid fa-bath"></i> 2 Banheiros</span>
+                <span class="property-feature"><i class="fa-solid fa-ruler-combined"></i> 38m²</span>
+              </div>
+            </div>
+            <div class="property-actions">
+              <a href="imovel.html?id=4" class="btn btn-details"><i class="fa-solid fa-eye"></i> Detalhes</a>
+              <button class="btn btn-schedule-visit" data-property-id="4" data-property-title="Cobertura Duplex Moema - Vila Olimpia">
+                <i class="fa-solid fa-calendar-check"></i> Agendar Visita
+              </button>
+            </div>
+          </div>
+
+          <!-- Card 5 -->
+          <div class="property-card reveal-scale delay-1" data-property-id="5">
+            <div class="property-img">
+              <img src="/backend/uploads/properties/sala_faria_lima_1.jpg" alt="Casa de Campo" loading="lazy">
+              <span class="property-badge">Rural</span>
+              <button class="property-favorite" aria-label="Favoritar"><i class="fa-regular fa-heart"></i></button>
+            </div>
+            <div class="property-info">
+              <div class="property-price">R$ 780.000</div>
+              <div class="property-title">Sala Comercial Faria Lima</div>
+              <div class="property-location"><i class="fa-solid fa-location-dot"></i> Faria Lima, SP</div>
+              <div class="property-features">
+                <span class="property-feature"><i class="fa-solid fa-bed"></i> 2 Salas</span>
+                <span class="property-feature"><i class="fa-solid fa-bath"></i> 2 Banheiros</span>
+                <span class="property-feature"><i class="fa-solid fa-ruler-combined"></i> 350m²</span>
+              </div>
+            </div>
+            <div class="property-actions">
+              <a href="imovel.html?id=5" class="btn btn-details"><i class="fa-solid fa-eye"></i> Detalhes</a>
+              <button class="btn btn-schedule-visit" data-property-id="5" data-property-title="Sala Comercial Faria Lima">
+                <i class="fa-solid fa-calendar-check"></i> Agendar Visita
+              </button>
+            </div>
+          </div>
+
+          <!-- Card 6 -->
+          <div class="property-card reveal-scale delay-2" data-property-id="6">
+            <div class="property-img">
+              <img src="https://i.pinimg.com/736x/e8/b8/dd/e8b8dd784b843b7a39c60bf1d4c5525d.jpg" alt="Loft Industrial" loading="lazy">
+              <span class="property-badge">Exclusivo</span>
+              <button class="property-favorite" aria-label="Favoritar"><i class="fa-regular fa-heart"></i></button>
+            </div>
+            <div class="property-info">
+              <div class="property-price">R$ 650.000</div>
+              <div class="property-title">Loft Industrial Reformado</div>
+              <div class="property-location"><i class="fa-solid fa-location-dot"></i> Curitiba, PR</div>
+              <div class="property-features">
+                <span class="property-feature"><i class="fa-solid fa-bed"></i> 2 Quartos</span>
+                <span class="property-feature"><i class="fa-solid fa-bath"></i> 2 Banheiros</span>
+                <span class="property-feature"><i class="fa-solid fa-ruler-combined"></i> 120m²</span>
+              </div>
+            </div>
+            <div class="property-actions">
+              <a href="imovel.html?id=6" class="btn btn-details"><i class="fa-solid fa-eye"></i> Detalhes</a>
+              <button class="btn btn-schedule-visit" data-property-id="6" data-property-title="Loft Industrial Reformado">
+                <i class="fa-solid fa-calendar-check"></i> Agendar Visita
+              </button>
+            </div>
+          </div>
+
+        </div><!-- /.carousel-track -->
+
+        <!-- Carousel Controls -->
+        <div class="carousel-controls">
+          <button class="carousel-btn carousel-prev" aria-label="Anterior">
+            <i class="fa-solid fa-chevron-left"></i>
+          </button>
+          <div class="carousel-dots"></div>
+          <button class="carousel-btn carousel-next" aria-label="Próximo">
+            <i class="fa-solid fa-chevron-right"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== HOW IT WORKS ==================== -->
+  <section class="section how-it-works" id="how-it-works">
+    <div class="container">
+      <div class="section-header reveal">
+        <span class="section-label">Simples e Rápido</span>
+        <h2>Como Funciona</h2>
+        <p>Em 3 passos simples você encontra o imóvel ideal com a ajuda da nossa IA.</p>
+      </div>
+
+      <div class="steps-grid">
+        <div class="step-card reveal delay-1">
+          <div class="step-icon">
+            <span class="step-number">1</span>
+            <i class="fa-solid fa-magnifying-glass"></i>
+          </div>
+          <h3>Busque com IA</h3>
+          <p>Diga o que procura e nossa inteligência artificial encontra as melhores opções para você.</p>
+        </div>
+
+        <div class="step-card reveal delay-2">
+          <div class="step-icon">
+            <span class="step-number">2</span>
+            <i class="fa-solid fa-calendar-check"></i>
+          </div>
+          <h3>Agende uma Visita</h3>
+          <p>Escolha o melhor horário e agende sua visita diretamente pela plataforma, sem complicação.</p>
+        </div>
+
+        <div class="step-card reveal delay-3">
+          <div class="step-icon">
+            <span class="step-number">3</span>
+            <i class="fa-solid fa-key"></i>
+          </div>
+          <h3>Feche o Negócio</h3>
+          <p>Com toda segurança e suporte da nossa equipe, realize o sonho da casa própria.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== AI FEATURES ==================== -->
+  <section class="section ai-features" id="ai-features">
+    <div class="container">
+      <div class="section-header reveal">
+        <span class="section-label">Tecnologia</span>
+        <h2>Inteligência Artificial a seu favor</h2>
+        <p>Recursos exclusivos que tornam sua busca mais inteligente e eficiente.</p>
+      </div>
+
+      <div class="ai-grid">
+        <div class="ai-card reveal-left delay-1">
+          <div class="ai-card-icon"><i class="fa-solid fa-robot"></i></div>
+          <h3>Chatbot Inteligente</h3>
+          <p>Converse com nosso assistente virtual 24h. Tire dúvidas, receba sugestões de imóveis e agende visitas — tudo por chat.</p>
+        </div>
+
+        <div class="ai-card reveal-right delay-2">
+          <div class="ai-card-icon"><i class="fa-solid fa-brain"></i></div>
+          <h3>Busca Inteligente</h3>
+          <p>Nossa IA analisa suas preferências e histórico para recomendar os imóveis mais compatíveis com seu perfil.</p>
+        </div>
+
+        <div class="ai-card reveal-left delay-3">
+          <div class="ai-card-icon"><i class="fa-solid fa-chart-line"></i></div>
+          <h3>Análise de Mercado</h3>
+          <p>Receba insights sobre tendências de preços, melhores regiões e oportunidades de investimento imobiliário.</p>
+        </div>
+
+        <div class="ai-card reveal-right delay-4">
+          <div class="ai-card-icon"><i class="fa-solid fa-bell"></i></div>
+          <h3>Alertas Personalizados</h3>
+          <p>Configure alertas e seja notificado quando novos imóveis compatíveis com seu perfil forem cadastrados.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== TESTIMONIALS ==================== -->
+  <section class="section testimonials" id="testimonials">
+    <div class="container">
+      <div class="section-header reveal">
+        <span class="section-label">Depoimentos</span>
+        <h2>O que nossos clientes dizem</h2>
+        <p>Milhares de famílias já encontraram o lar ideal com a MOVAI.</p>
+      </div>
+
+      <div class="testimonials-grid">
+        <div class="testimonial-card reveal delay-1">
+          <div class="quote-icon"><i class="fa-solid fa-quote-left"></i></div>
+          <p class="testimonial-text">"A busca inteligente da MOVAI encontrou exatamente o que eu procurava em menos de uma semana. Incrível!"</p>
+          <div class="testimonial-author">
+            <img src="https://i.pravatar.cc/96?img=32" alt="Ana Silva" class="testimonial-avatar" loading="lazy">
+            <div class="testimonial-info">
+              <h4>Ana Silva</h4>
+              <div class="rating">
+                <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="testimonial-card reveal delay-2">
+          <div class="quote-icon"><i class="fa-solid fa-quote-left"></i></div>
+          <p class="testimonial-text">"O chatbot me ajudou a tirar todas as dúvidas e agendar visitas de forma super prática. Recomendo demais!"</p>
+          <div class="testimonial-author">
+            <img src="https://i.pravatar.cc/96?img=51" alt="Carlos Mendes" class="testimonial-avatar" loading="lazy">
+            <div class="testimonial-info">
+              <h4>Carlos Mendes</h4>
+              <div class="rating">
+                <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="testimonial-card reveal delay-3">
+          <div class="quote-icon"><i class="fa-solid fa-quote-left"></i></div>
+          <p class="testimonial-text">"Plataforma moderna e fácil de usar. A análise de mercado me ajudou a fazer um ótimo investimento."</p>
+          <div class="testimonial-author">
+            <img src="https://i.pravatar.cc/96?img=47" alt="Beatriz Oliveira" class="testimonial-avatar" loading="lazy">
+            <div class="testimonial-info">
+              <h4>Beatriz Oliveira</h4>
+              <div class="rating">
+                <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-regular fa-star"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== CTA SECTION ==================== -->
+  <section class="section cta-section">
+    <div class="container reveal">
+      <h2>Pronto para encontrar seu imóvel?</h2>
+      <p>Cadastre-se gratuitamente e deixe a inteligência artificial fazer o trabalho pesado por você.</p>
+      <div class="cta-buttons">
+        <a href="cadasatro.html" class="btn btn-white btn-lg">
+          <i class="fa-solid fa-rocket"></i> Comece Agora
+        </a>
+        <a href="#how-it-works" class="btn btn-outline btn-lg" style="color:#fff;border-color:rgba(255,255,255,0.5);">
+          Saiba Mais
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== CONTACT SECTION ==================== -->
+  <section class="section contact-section" id="contact">
+    <div class="container">
+      <div class="section-header reveal">
+        <span class="section-label">Contato</span>
+        <h2>Fale Conosco</h2>
+        <p>Tem alguma dúvida ou quer saber mais? Entre em contato conosco!</p>
+      </div>
+
+      <div class="contact-grid">
+        <!-- Contact Info -->
+        <div class="contact-info reveal-left">
+          <h3>Estamos aqui para ajudar</h3>
+          <p>Nossa equipe está pronta para atender você. Escolha o canal de sua preferência ou preencha o formulário ao lado.</p>
+
+          <div class="contact-detail">
+            <div class="contact-detail-icon"><i class="fa-solid fa-phone"></i></div>
+            <div>
+              <strong>Telefone</strong>
+              <span>(11) 9999-0000</span>
+            </div>
+          </div>
+
+          <div class="contact-detail">
+            <div class="contact-detail-icon"><i class="fa-solid fa-envelope"></i></div>
+            <div>
+              <strong>Email</strong>
+              <span>contato@movai.com.br</span>
+            </div>
+          </div>
+
+          <div class="contact-detail">
+            <div class="contact-detail-icon"><i class="fa-solid fa-location-dot"></i></div>
+            <div>
+              <strong>Endereço</strong>
+              <span>Av. Paulista, 1000 - São Paulo, SP</span>
+            </div>
+          </div>
+
+          <div class="contact-detail">
+            <div class="contact-detail-icon"><i class="fa-solid fa-clock"></i></div>
+            <div>
+              <strong>Horário</strong>
+              <span>Seg a Sex: 8h às 18h | Sáb: 9h às 13h</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Contact Form -->
+        <div class="contact-form-card reveal-right">
+          <h3><i class="fa-solid fa-paper-plane"></i> Envie sua mensagem</h3>
+          <form id="contact-form">
+            <div class="form-row">
+              <div class="form-group">
+                <label for="contact-name">Nome *</label>
+                <input type="text" id="contact-name" name="name" placeholder="Seu nome completo" required>
+              </div>
+              <div class="form-group">
+                <label for="contact-email">Email *</label>
+                <input type="email" id="contact-email" name="email" placeholder="seu@email.com" required>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="contact-phone">Telefone</label>
+              <input type="tel" id="contact-phone" name="phone" placeholder="(11) 99999-0000">
+            </div>
+            <div class="form-group">
+              <label for="contact-message">Mensagem *</label>
+              <textarea id="contact-message" name="message" placeholder="Como podemos ajudar?" rows="4" required></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary btn-lg" style="width:100%;">
+              <i class="fa-solid fa-paper-plane"></i> Enviar Mensagem
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== FOOTER ==================== -->
+  <footer class="footer" id="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <a href="#" class="navbar-logo">
+            <i class="fa-solid fa-building"></i> MOV<span>AI</span>
+          </a>
+          <p>Plataforma inteligente de busca imobiliária com IA. Encontre, agende e realize o sonho da casa própria.</p>
+          <div class="footer-social">
+            <a href="#" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+            <a href="#" aria-label="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
+            <a href="#" aria-label="LinkedIn"><i class="fa-brands fa-linkedin-in"></i></a>
+            <a href="#" aria-label="Twitter"><i class="fa-brands fa-x-twitter"></i></a>
+          </div>
+        </div>
+
+        <div class="footer-col">
+          <h4>Plataforma</h4>
+          <ul>
+            <li><a href="#properties">Imóveis</a></li>
+            <li><a href="#how-it-works">Como Funciona</a></li>
+            <li><a href="#ai-features">Recursos IA</a></li>
+            <li><a href="#">Preços</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h4>Suporte</h4>
+          <ul>
+            <li><a href="#">Central de Ajuda</a></li>
+            <li><a href="#contact">Fale Conosco</a></li>
+            <li><a href="#">FAQ</a></li>
+            <li><a href="#">Blog</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h4>Legal</h4>
+          <ul>
+            <li><a href="#">Termos de Uso</a></li>
+            <li><a href="#">Política de Privacidade</a></li>
+            <li><a href="#">Cookies</a></li>
+            <li><a href="#">LGPD</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <span>&copy; 2026 MOVAI. Todos os direitos reservados.</span>
+        <span>Feito com <i class="fa-solid fa-heart" style="color:#DC2626;"></i> e Inteligência Artificial</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ==================== SCHEDULE VISIT MODAL ==================== -->
+  <div class="modal" id="schedule-modal">
+    <div class="modal-overlay"></div>
+    <div class="modal-content">
+      <button class="modal-close" aria-label="Fechar"><i class="fa-solid fa-xmark"></i></button>
+      <h3><i class="fa-solid fa-calendar-check"></i> Agendar Visita</h3>
+      <p class="modal-property-title"></p>
+      <form id="schedule-form">
+        <input type="hidden" name="property_id">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="schedule-name">Nome *</label>
+            <input type="text" id="schedule-name" name="name" placeholder="Seu nome completo" required>
+          </div>
+          <div class="form-group">
+            <label for="schedule-email">Email</label>
+            <input type="email" id="schedule-email" name="email" placeholder="seu@email.com">
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="schedule-phone">Telefone</label>
+          <input type="tel" id="schedule-phone" name="phone" placeholder="(11) 99999-0000">
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="schedule-date">Data *</label>
+            <input type="date" id="schedule-date" name="date" required>
+          </div>
+          <div class="form-group">
+            <label for="schedule-time">Horário *</label>
+            <input type="time" id="schedule-time" name="time" required>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="schedule-notes">Observações</label>
+          <textarea id="schedule-notes" name="notes" placeholder="Alguma preferência ou dúvida?" rows="3"></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary btn-lg" style="width:100%;">
+          <i class="fa-solid fa-calendar-check"></i> Confirmar Agendamento
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==================== CHATBOT FAB ==================== -->
+  <button class="chatbot-fab" aria-label="Abrir chatbot">
+    <i class="fa-solid fa-comments"></i>
+  </button>
+
+  <!-- Scripts -->
+  <script src="../js/api.js"></script>
+  <script src="../js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MOVAI Admin - Agendamentos</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="sidebar">
+      <div class="sidebar-header"><div class="logo">MOV<span>AI</span></div><span class="badge">Admin</span></div>
+      <nav class="sidebar-nav">
+        <div class="nav-section">Principal</div>
+        <a href="dashboard.html" class="nav-item" data-page="dashboard"><i class="fas fa-th-large"></i> Dashboard</a>
+        <div class="nav-section">Gestão</div>
+        <a href="properties.html" class="nav-item" data-page="properties"><i class="fas fa-building"></i> Imóveis</a>
+        <a href="leads.html" class="nav-item" data-page="leads"><i class="fas fa-user-plus"></i> Leads</a>
+        <a href="appointments.html" class="nav-item" data-page="appointments"><i class="fas fa-calendar-alt"></i> Agendamentos</a>
+        <div class="nav-section">Sistema</div>
+        <a href="users.html" class="nav-item" data-page="users"><i class="fas fa-users-cog"></i> Usuários</a>
+        <a href="chatbot.html" class="nav-item" data-page="chatbot"><i class="fas fa-robot"></i> Chatbot</a>
+        <a href="reports.html" class="nav-item" data-page="reports"><i class="fas fa-chart-bar"></i> Relatórios</a>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="user-avatar">U</div>
+        <div class="user-info"><div class="user-name">Usuário</div><div class="user-role">Admin</div></div>
+        <button class="logout-btn" title="Sair"><i class="fas fa-sign-out-alt"></i></button>
+      </div>
+    </aside>
+
+    <div class="main-content">
+      <header class="top-header">
+        <button class="menu-toggle"><i class="fas fa-bars"></i></button>
+        <h2 class="page-title">Agendamentos</h2>
+        <div class="header-actions"><div class="header-search"><i class="fas fa-search"></i><input type="text" placeholder="Buscar..." id="globalSearch"></div></div>
+      </header>
+
+      <div class="page-content">
+        <div class="toolbar">
+          <div class="filters-bar">
+            <select class="form-control" id="filterStatus">
+              <option value="">Todos os Status</option>
+              <option value="pendente">Pendente</option>
+              <option value="confirmado">Confirmado</option>
+              <option value="cancelado">Cancelado</option>
+              <option value="realizado">Realizado</option>
+            </select>
+          </div>
+          <div style="display:flex;gap:.5rem;align-items:center">
+            <div class="view-toggle">
+              <button class="active" id="calendarViewBtn" onclick="switchView('calendar')"><i class="fas fa-calendar-alt"></i></button>
+              <button id="listViewBtn" onclick="switchView('list')"><i class="fas fa-list"></i></button>
+            </div>
+            <button class="btn btn-primary" onclick="openAppointmentModal()"><i class="fas fa-plus"></i> Novo</button>
+          </div>
+        </div>
+
+        <!-- Calendar View -->
+        <div id="calendarView" class="card">
+          <div class="card-body">
+            <div class="calendar-header">
+              <button class="btn btn-ghost btn-sm" onclick="changeMonth(-1)"><i class="fas fa-chevron-left"></i></button>
+              <h3 id="calendarTitle">Abril 2026</h3>
+              <button class="btn btn-ghost btn-sm" onclick="changeMonth(1)"><i class="fas fa-chevron-right"></i></button>
+            </div>
+            <div class="calendar-grid" id="calendarGrid"></div>
+          </div>
+        </div>
+
+        <!-- List View -->
+        <div id="listView" class="card" style="display:none">
+          <div class="card-body no-padding">
+            <div class="table-wrapper">
+              <table>
+                <thead><tr><th>Data</th><th>Hora</th><th>Lead</th><th>Imóvel</th><th>Corretor</th><th>Status</th><th>Ações</th></tr></thead>
+                <tbody id="listBody"><tr><td colspan="7"><div class="page-loading"><div class="spinner"></div></div></td></tr></tbody>
+              </table>
+            </div>
+          </div>
+          <div class="card-footer">
+            <span class="page-info" id="pageInfo">-</span>
+            <div class="pagination" id="pagination"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Appointment Modal -->
+  <div class="modal-overlay" id="appointmentModal">
+    <div class="modal">
+      <div class="modal-header"><h3 id="appointmentModalTitle">Novo Agendamento</h3><button class="modal-close"><i class="fas fa-times"></i></button></div>
+      <div class="modal-body">
+        <form id="appointmentForm">
+          <input type="hidden" id="apptId">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">ID do Lead *</label>
+              <input type="number" class="form-control" id="apptLeadId" required><div class="form-error"></div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">ID do Imóvel *</label>
+              <input type="number" class="form-control" id="apptPropertyId" required><div class="form-error"></div>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Data *</label>
+              <input type="date" class="form-control" id="apptDate" required><div class="form-error"></div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Hora *</label>
+              <input type="time" class="form-control" id="apptTime" required><div class="form-error"></div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Status</label>
+            <select class="form-control" id="apptStatus">
+              <option value="pendente">Pendente</option>
+              <option value="confirmado">Confirmado</option>
+              <option value="cancelado">Cancelado</option>
+              <option value="realizado">Realizado</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Observações</label>
+            <textarea class="form-control" id="apptNotes" rows="3"></textarea>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="Modal.close('appointmentModal')">Cancelar</button>
+        <button class="btn btn-primary" id="saveAppointment"><i class="fas fa-save"></i> Salvar</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/admin.js"></script>
+  <script>
+    let currentView = 'calendar';
+    let currentMonth = new Date().getMonth();
+    let currentYear = new Date().getFullYear();
+    let allAppointments = [];
+    let currentPage = 1;
+
+    const monthNames = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+    const dayNames = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+
+    function switchView(view) {
+      currentView = view;
+      document.getElementById('calendarView').style.display = view === 'calendar' ? '' : 'none';
+      document.getElementById('listView').style.display = view === 'list' ? '' : 'none';
+      document.getElementById('calendarViewBtn').classList.toggle('active', view === 'calendar');
+      document.getElementById('listViewBtn').classList.toggle('active', view === 'list');
+      if (view === 'list') loadList();
+    }
+
+    async function loadAppointments() {
+      try {
+        const res = await Api.get('/appointments?limit=200');
+        allAppointments = res.data?.appointments || res.data || [];
+        renderCalendar();
+      } catch (err) { Toast.error('Erro ao carregar agendamentos'); console.error(err); }
+    }
+
+    function changeMonth(delta) {
+      currentMonth += delta;
+      if (currentMonth > 11) { currentMonth = 0; currentYear++; }
+      if (currentMonth < 0) { currentMonth = 11; currentYear--; }
+      renderCalendar();
+    }
+
+    function renderCalendar() {
+      document.getElementById('calendarTitle').textContent = `${monthNames[currentMonth]} ${currentYear}`;
+      const grid = document.getElementById('calendarGrid');
+      let html = dayNames.map(d => `<div class="calendar-day-header">${d}</div>`).join('');
+
+      const firstDay = new Date(currentYear, currentMonth, 1).getDay();
+      const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+      const prevMonthDays = new Date(currentYear, currentMonth, 0).getDate();
+      const today = new Date();
+
+      // Previous month days
+      for (let i = firstDay - 1; i >= 0; i--) {
+        html += `<div class="calendar-day other-month"><div class="day-number">${prevMonthDays - i}</div></div>`;
+      }
+
+      // Current month days
+      for (let d = 1; d <= daysInMonth; d++) {
+        const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+        const isToday = d === today.getDate() && currentMonth === today.getMonth() && currentYear === today.getFullYear();
+        const dayAppointments = allAppointments.filter(a => a.date === dateStr);
+        const statusFilter = document.getElementById('filterStatus').value;
+        const filtered = statusFilter ? dayAppointments.filter(a => a.status === statusFilter) : dayAppointments;
+
+        html += `<div class="calendar-day ${isToday ? 'today' : ''}"><div class="day-number">${d}</div>`;
+        filtered.slice(0, 3).forEach(a => {
+          html += `<div class="calendar-event ${a.status}" onclick="viewAppointment(${a.id})" title="${a.time || ''} - ${a.lead_name || 'Lead'}">${a.time || ''} ${a.lead_name || ''}</div>`;
+        });
+        if (filtered.length > 3) html += `<div style="font-size:.65rem;color:var(--gray-500)">+${filtered.length - 3} mais</div>`;
+        html += '</div>';
+      }
+
+      // Next month days
+      const totalCells = firstDay + daysInMonth;
+      const remaining = totalCells % 7 === 0 ? 0 : 7 - (totalCells % 7);
+      for (let i = 1; i <= remaining; i++) {
+        html += `<div class="calendar-day other-month"><div class="day-number">${i}</div></div>`;
+      }
+
+      grid.innerHTML = html;
+    }
+
+    async function loadList(page = 1) {
+      currentPage = page;
+      const status = document.getElementById('filterStatus').value;
+      let url = `/appointments?page=${page}&limit=10`;
+      if (status) url += `&status=${status}`;
+      const tbody = document.getElementById('listBody');
+      try {
+        const res = await Api.get(url);
+        const items = res.data?.appointments || res.data || [];
+        const pagination = res.pagination || {};
+        if (!items.length) {
+          tbody.innerHTML = '<tr><td colspan="7"><div class="empty-state"><i class="fas fa-calendar"></i><h4>Nenhum agendamento</h4></div></td></tr>';
+        } else {
+          tbody.innerHTML = items.map(a => `
+            <tr>
+              <td>${formatDate(a.date)}</td>
+              <td>${a.time || '-'}</td>
+              <td>${a.lead_name || '-'}</td>
+              <td>${a.property_title || '-'}</td>
+              <td>${a.agent_name || '-'}</td>
+              <td>${getStatusBadge(a.status)}</td>
+              <td>
+                <div class="action-btns">
+                  ${a.status === 'pendente' ? `
+                    <button class="btn btn-xs btn-success" onclick="updateStatus(${a.id},'confirmado')"><i class="fas fa-check"></i></button>
+                    <button class="btn btn-xs btn-danger" onclick="updateStatus(${a.id},'cancelado')"><i class="fas fa-times"></i></button>
+                  ` : ''}
+                  ${a.status === 'confirmado' ? `<button class="btn btn-xs btn-primary" onclick="updateStatus(${a.id},'realizado')"><i class="fas fa-check-double"></i></button>` : ''}
+                  <button class="btn btn-icon btn-ghost sm" onclick="editAppointment(${a.id})"><i class="fas fa-pen"></i></button>
+                </div>
+              </td>
+            </tr>
+          `).join('');
+        }
+        document.getElementById('pageInfo').textContent = `${items.length} de ${pagination.total || items.length}`;
+        renderPagination(document.getElementById('pagination'), pagination.page || 1, pagination.totalPages || 1, loadList);
+      } catch (err) { Toast.error('Erro ao carregar lista'); }
+    }
+
+    async function updateStatus(id, status) {
+      try {
+        await Api.patch(`/appointments/${id}/status`, { status });
+        Toast.success('Status atualizado');
+        loadAppointments();
+        if (currentView === 'list') loadList(currentPage);
+      } catch (err) { Toast.error('Erro: ' + err.message); }
+    }
+
+    async function viewAppointment(id) {
+      try {
+        const res = await Api.get(`/appointments/${id}`);
+        const a = res.data;
+        openAppointmentModal(a);
+      } catch (err) { Toast.error('Erro ao carregar'); }
+    }
+
+    function openAppointmentModal(data = null) {
+      document.getElementById('appointmentModalTitle').textContent = data ? 'Editar Agendamento' : 'Novo Agendamento';
+      document.getElementById('apptId').value = data ? data.id : '';
+      document.getElementById('apptLeadId').value = data ? data.lead_id : '';
+      document.getElementById('apptPropertyId').value = data ? data.property_id : '';
+      document.getElementById('apptDate').value = data ? data.date : '';
+      document.getElementById('apptTime').value = data ? (data.time || '') : '';
+      document.getElementById('apptStatus').value = data ? data.status : 'pendente';
+      document.getElementById('apptNotes').value = data ? (data.notes || '') : '';
+      Modal.open('appointmentModal');
+    }
+
+    async function editAppointment(id) {
+      try { const res = await Api.get(`/appointments/${id}`); openAppointmentModal(res.data); }
+      catch (err) { Toast.error('Erro'); }
+    }
+
+    document.getElementById('saveAppointment').addEventListener('click', async () => {
+      if (!validateForm('appointmentForm')) return;
+      const id = document.getElementById('apptId').value;
+      const data = {
+        lead_id: parseInt(document.getElementById('apptLeadId').value),
+        property_id: parseInt(document.getElementById('apptPropertyId').value),
+        date: document.getElementById('apptDate').value,
+        time: document.getElementById('apptTime').value,
+        status: document.getElementById('apptStatus').value,
+        notes: document.getElementById('apptNotes').value
+      };
+      try {
+        if (id) { await Api.put(`/appointments/${id}`, data); Toast.success('Agendamento atualizado!'); }
+        else { await Api.post('/appointments', data); Toast.success('Agendamento criado!'); }
+        Modal.close('appointmentModal');
+        loadAppointments();
+        if (currentView === 'list') loadList(currentPage);
+      } catch (err) { Toast.error('Erro: ' + err.message); }
+    });
+
+    document.getElementById('filterStatus').addEventListener('change', () => {
+      if (currentView === 'calendar') renderCalendar(); else loadList(1);
+    });
+
+    loadAppointments();
+  </script>
+</body>
+</html>

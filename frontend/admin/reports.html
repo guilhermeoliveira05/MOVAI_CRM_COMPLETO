@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MOVAI Admin - Relatórios</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="sidebar">
+      <div class="sidebar-header"><div class="logo">MOV<span>AI</span></div><span class="badge">Admin</span></div>
+      <nav class="sidebar-nav">
+        <div class="nav-section">Principal</div>
+        <a href="dashboard.html" class="nav-item" data-page="dashboard"><i class="fas fa-th-large"></i> Dashboard</a>
+        <div class="nav-section">Gestão</div>
+        <a href="properties.html" class="nav-item" data-page="properties"><i class="fas fa-building"></i> Imóveis</a>
+        <a href="leads.html" class="nav-item" data-page="leads"><i class="fas fa-user-plus"></i> Leads</a>
+        <a href="appointments.html" class="nav-item" data-page="appointments"><i class="fas fa-calendar-alt"></i> Agendamentos</a>
+        <div class="nav-section">Sistema</div>
+        <a href="users.html" class="nav-item" data-page="users"><i class="fas fa-users-cog"></i> Usuários</a>
+        <a href="chatbot.html" class="nav-item" data-page="chatbot"><i class="fas fa-robot"></i> Chatbot</a>
+        <a href="reports.html" class="nav-item" data-page="reports"><i class="fas fa-chart-bar"></i> Relatórios</a>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="user-avatar">U</div>
+        <div class="user-info"><div class="user-name">Usuário</div><div class="user-role">Admin</div></div>
+        <button class="logout-btn" title="Sair"><i class="fas fa-sign-out-alt"></i></button>
+      </div>
+    </aside>
+
+    <div class="main-content">
+      <header class="top-header">
+        <button class="menu-toggle"><i class="fas fa-bars"></i></button>
+        <h2 class="page-title">Relatórios</h2>
+        <div class="header-actions"></div>
+      </header>
+
+      <div class="page-content">
+        <!-- Tabs -->
+        <div class="tabs">
+          <button class="tab-btn active" onclick="switchTab('properties')">Imóveis</button>
+          <button class="tab-btn" onclick="switchTab('leads')">Leads</button>
+          <button class="tab-btn" onclick="switchTab('sales')">Vendas</button>
+        </div>
+
+        <!-- Properties Report -->
+        <div class="tab-content active" id="tab-properties">
+          <div class="report-filters">
+            <div class="form-group"><label class="form-label">Status</label>
+              <select class="form-control" id="propStatus"><option value="">Todos</option><option value="disponivel">Disponível</option><option value="vendido">Vendido</option><option value="alugado">Alugado</option><option value="reservado">Reservado</option><option value="inativo">Inativo</option></select>
+            </div>
+            <div class="form-group"><label class="form-label">Tipo</label>
+              <select class="form-control" id="propType"><option value="">Todos</option><option value="apartamento">Apartamento</option><option value="casa">Casa</option><option value="cobertura">Cobertura</option><option value="terreno">Terreno</option><option value="comercial">Comercial</option></select>
+            </div>
+            <div class="form-group"><label class="form-label">De</label><input type="date" class="form-control" id="propDateFrom"></div>
+            <div class="form-group"><label class="form-label">Até</label><input type="date" class="form-control" id="propDateTo"></div>
+            <div class="form-group" style="display:flex;gap:.5rem;align-items:flex-end">
+              <button class="btn btn-primary" onclick="loadPropertiesReport()"><i class="fas fa-search"></i> Filtrar</button>
+            </div>
+          </div>
+          <div class="report-summary" id="propSummary"></div>
+          <div class="card">
+            <div class="card-header"><h3>Relatório de Imóveis</h3>
+              <div style="display:flex;gap:.5rem">
+                <button class="btn btn-sm btn-outline" onclick="exportPropCSV()"><i class="fas fa-file-csv"></i> CSV</button>
+                <button class="btn btn-sm btn-outline" onclick="exportToPDF('Relatório de Imóveis','propTable')"><i class="fas fa-file-pdf"></i> PDF</button>
+              </div>
+            </div>
+            <div class="card-body no-padding">
+              <div class="table-wrapper">
+                <table id="propTable">
+                  <thead><tr><th>ID</th><th>Título</th><th>Tipo</th><th>Preço</th><th>Cidade</th><th>Status</th><th>Corretor</th><th>Data</th></tr></thead>
+                  <tbody id="propBody"><tr><td colspan="8" style="text-align:center;padding:2rem;color:var(--gray-400)">Clique em Filtrar para carregar</td></tr></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Leads Report -->
+        <div class="tab-content" id="tab-leads">
+          <div class="report-filters">
+            <div class="form-group"><label class="form-label">Status</label>
+              <select class="form-control" id="leadStatus"><option value="">Todos</option><option value="novo">Novo</option><option value="contactado">Contactado</option><option value="qualificado">Qualificado</option><option value="convertido">Convertido</option><option value="perdido">Perdido</option></select>
+            </div>
+            <div class="form-group"><label class="form-label">Fonte</label>
+              <select class="form-control" id="leadSource"><option value="">Todas</option><option value="site">Site</option><option value="chatbot">Chatbot</option><option value="indicacao">Indicação</option><option value="telefone">Telefone</option></select>
+            </div>
+            <div class="form-group"><label class="form-label">De</label><input type="date" class="form-control" id="leadDateFrom"></div>
+            <div class="form-group"><label class="form-label">Até</label><input type="date" class="form-control" id="leadDateTo"></div>
+            <div class="form-group" style="display:flex;gap:.5rem;align-items:flex-end">
+              <button class="btn btn-primary" onclick="loadLeadsReport()"><i class="fas fa-search"></i> Filtrar</button>
+            </div>
+          </div>
+          <div class="report-summary" id="leadSummary"></div>
+          <div class="card">
+            <div class="card-header"><h3>Relatório de Leads</h3>
+              <div style="display:flex;gap:.5rem">
+                <button class="btn btn-sm btn-outline" onclick="exportLeadCSV()"><i class="fas fa-file-csv"></i> CSV</button>
+                <button class="btn btn-sm btn-outline" onclick="exportToPDF('Relatório de Leads','leadTable')"><i class="fas fa-file-pdf"></i> PDF</button>
+              </div>
+            </div>
+            <div class="card-body no-padding">
+              <div class="table-wrapper">
+                <table id="leadTable">
+                  <thead><tr><th>ID</th><th>Nome</th><th>E-mail</th><th>Telefone</th><th>Fonte</th><th>Status</th><th>Imóvel</th><th>Data</th></tr></thead>
+                  <tbody id="leadBody"><tr><td colspan="8" style="text-align:center;padding:2rem;color:var(--gray-400)">Clique em Filtrar para carregar</td></tr></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sales Report -->
+        <div class="tab-content" id="tab-sales">
+          <div class="report-filters">
+            <div class="form-group"><label class="form-label">De</label><input type="date" class="form-control" id="salesDateFrom"></div>
+            <div class="form-group"><label class="form-label">Até</label><input type="date" class="form-control" id="salesDateTo"></div>
+            <div class="form-group" style="display:flex;gap:.5rem;align-items:flex-end">
+              <button class="btn btn-primary" onclick="loadSalesReport()"><i class="fas fa-search"></i> Filtrar</button>
+            </div>
+          </div>
+          <div class="report-summary" id="salesSummary"></div>
+          <div class="card">
+            <div class="card-header"><h3>Relatório de Vendas</h3>
+              <div style="display:flex;gap:.5rem">
+                <button class="btn btn-sm btn-outline" onclick="exportSalesCSV()"><i class="fas fa-file-csv"></i> CSV</button>
+                <button class="btn btn-sm btn-outline" onclick="exportToPDF('Relatório de Vendas','salesTable')"><i class="fas fa-file-pdf"></i> PDF</button>
+              </div>
+            </div>
+            <div class="card-body no-padding">
+              <div class="table-wrapper">
+                <table id="salesTable">
+                  <thead><tr><th>ID</th><th>Título</th><th>Tipo</th><th>Preço</th><th>Status</th><th>Corretor</th><th>Data Venda</th></tr></thead>
+                  <tbody id="salesBody"><tr><td colspan="7" style="text-align:center;padding:2rem;color:var(--gray-400)">Clique em Filtrar para carregar</td></tr></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/admin.js"></script>
+  <script>
+    let propData = [], leadData = [], salesData = [];
+
+    function switchTab(tab) {
+      document.querySelectorAll('.tab-btn').forEach((b, i) => {
+        b.classList.toggle('active', ['properties', 'leads', 'sales'][i] === tab);
+      });
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+      document.getElementById(`tab-${tab}`).classList.add('active');
+    }
+
+    async function loadPropertiesReport() {
+      const params = new URLSearchParams();
+      const status = document.getElementById('propStatus').value;
+      const type = document.getElementById('propType').value;
+      const from = document.getElementById('propDateFrom').value;
+      const to = document.getElementById('propDateTo').value;
+      if (status) params.append('status', status);
+      if (type) params.append('type', type);
+      if (from) params.append('startDate', from);
+      if (to) params.append('endDate', to);
+
+      try {
+        const res = await Api.get(`/reports/properties?${params}`);
+        propData = res.data?.properties || res.data || [];
+        const summary = res.data?.summary || {};
+
+        document.getElementById('propSummary').innerHTML = `
+          <div class="summary-card"><div class="summary-value">${summary.total || propData.length}</div><div class="summary-label">Total de Imóveis</div></div>
+          <div class="summary-card"><div class="summary-value">${formatCurrency(summary.totalValue || 0)}</div><div class="summary-label">Valor Total</div></div>
+          ${summary.byStatus ? Object.entries(summary.byStatus).map(([k, v]) => `<div class="summary-card"><div class="summary-value">${v}</div><div class="summary-label">${k}</div></div>`).join('') : ''}
+        `;
+
+        const tbody = document.getElementById('propBody');
+        if (!propData.length) { tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:2rem">Nenhum resultado</td></tr>'; return; }
+        tbody.innerHTML = propData.map(p => `
+          <tr><td>${p.id}</td><td>${p.title}</td><td>${p.type || '-'}</td><td>${formatCurrency(p.price)}</td><td>${p.city || '-'}</td><td>${getStatusBadge(p.status)}</td><td>${p.agent_name || '-'}</td><td>${formatDate(p.created_at)}</td></tr>
+        `).join('');
+      } catch (err) { Toast.error('Erro: ' + err.message); }
+    }
+
+    async function loadLeadsReport() {
+      const params = new URLSearchParams();
+      const status = document.getElementById('leadStatus').value;
+      const source = document.getElementById('leadSource').value;
+      const from = document.getElementById('leadDateFrom').value;
+      const to = document.getElementById('leadDateTo').value;
+      if (status) params.append('status', status);
+      if (source) params.append('source', source);
+      if (from) params.append('startDate', from);
+      if (to) params.append('endDate', to);
+
+      try {
+        const res = await Api.get(`/reports/leads?${params}`);
+        leadData = res.data?.leads || res.data || [];
+        const summary = res.data?.summary || {};
+
+        document.getElementById('leadSummary').innerHTML = `
+          <div class="summary-card"><div class="summary-value">${summary.total || leadData.length}</div><div class="summary-label">Total de Leads</div></div>
+          ${summary.byStatus ? Object.entries(summary.byStatus).map(([k, v]) => `<div class="summary-card"><div class="summary-value">${v}</div><div class="summary-label">${k}</div></div>`).join('') : ''}
+        `;
+
+        const tbody = document.getElementById('leadBody');
+        if (!leadData.length) { tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:2rem">Nenhum resultado</td></tr>'; return; }
+        tbody.innerHTML = leadData.map(l => `
+          <tr><td>${l.id}</td><td>${l.name}</td><td>${l.email || '-'}</td><td>${l.phone || '-'}</td><td>${l.source || '-'}</td><td>${getStatusBadge(l.status)}</td><td>${l.property_title || '-'}</td><td>${formatDate(l.created_at)}</td></tr>
+        `).join('');
+      } catch (err) { Toast.error('Erro: ' + err.message); }
+    }
+
+    async function loadSalesReport() {
+      const params = new URLSearchParams();
+      const from = document.getElementById('salesDateFrom').value;
+      const to = document.getElementById('salesDateTo').value;
+      if (from) params.append('startDate', from);
+      if (to) params.append('endDate', to);
+
+      try {
+        const res = await Api.get(`/reports/sales?${params}`);
+        salesData = res.data?.sales || res.data || [];
+        const summary = res.data?.summary || {};
+
+        document.getElementById('salesSummary').innerHTML = `
+          <div class="summary-card"><div class="summary-value">${summary.totalSales || 0}</div><div class="summary-label">Vendas</div></div>
+          <div class="summary-card"><div class="summary-value">${formatCurrency(summary.totalSalesValue || 0)}</div><div class="summary-label">Valor Vendas</div></div>
+          <div class="summary-card"><div class="summary-value">${summary.totalRentals || 0}</div><div class="summary-label">Aluguéis</div></div>
+          <div class="summary-card"><div class="summary-value">${formatCurrency(summary.totalRentalsValue || 0)}</div><div class="summary-label">Valor Aluguéis</div></div>
+        `;
+
+        const tbody = document.getElementById('salesBody');
+        if (!salesData.length) { tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:2rem">Nenhum resultado</td></tr>'; return; }
+        tbody.innerHTML = salesData.map(s => `
+          <tr><td>${s.id}</td><td>${s.title}</td><td>${s.type || '-'}</td><td>${formatCurrency(s.price)}</td><td>${getStatusBadge(s.status)}</td><td>${s.agent_name || '-'}</td><td>${formatDate(s.sale_date || s.updated_at)}</td></tr>
+        `).join('');
+      } catch (err) { Toast.error('Erro: ' + err.message); }
+    }
+
+    // CSV exports
+    function exportPropCSV() {
+      exportToCSV(propData, 'relatorio_imoveis', [
+        { key: 'id', label: 'ID' }, { key: 'title', label: 'Título' }, { key: 'type', label: 'Tipo' },
+        { key: 'price', label: 'Preço' }, { key: 'city', label: 'Cidade' }, { key: 'status', label: 'Status' },
+        { key: 'agent_name', label: 'Corretor' }, { label: 'Data', getter: r => formatDate(r.created_at) }
+      ]);
+    }
+    function exportLeadCSV() {
+      exportToCSV(leadData, 'relatorio_leads', [
+        { key: 'id', label: 'ID' }, { key: 'name', label: 'Nome' }, { key: 'email', label: 'E-mail' },
+        { key: 'phone', label: 'Telefone' }, { key: 'source', label: 'Fonte' }, { key: 'status', label: 'Status' },
+        { key: 'property_title', label: 'Imóvel' }, { label: 'Data', getter: r => formatDate(r.created_at) }
+      ]);
+    }
+    function exportSalesCSV() {
+      exportToCSV(salesData, 'relatorio_vendas', [
+        { key: 'id', label: 'ID' }, { key: 'title', label: 'Título' }, { key: 'type', label: 'Tipo' },
+        { key: 'price', label: 'Preço' }, { key: 'status', label: 'Status' }, { key: 'agent_name', label: 'Corretor' },
+        { label: 'Data Venda', getter: r => formatDate(r.sale_date || r.updated_at) }
+      ]);
+    }
+  </script>
+</body>
+</html>

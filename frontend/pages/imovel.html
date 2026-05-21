@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="MOVAI — Detalhes do imóvel">
+  <title>MOVAI — Detalhes do Imóvel</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="../css/global.css">
+  <link rel="stylesheet" href="../css/home.css">
+  <link rel="stylesheet" href="../css/imovel.css">
+
+  <!-- Inline styles for shared components (modal, chatbot, forms, toasts) -->
+  <style>
+    /* Modal */
+    .modal { display: none; position: fixed; inset: 0; z-index: 9999; align-items: center; justify-content: center; }
+    .modal.active { display: flex; }
+    .modal-overlay { position: absolute; inset: 0; background: rgba(0,0,0,.5); backdrop-filter: blur(4px); }
+    .modal-content {
+      position: relative; background: #fff; border-radius: 20px; padding: 36px;
+      max-width: 520px; width: 90%; max-height: 90vh; overflow-y: auto;
+      box-shadow: 0 20px 60px rgba(0,0,0,.2); animation: modalIn .3s ease;
+    }
+    @keyframes modalIn { from { transform: scale(.9) translateY(20px); opacity: 0; } to { transform: scale(1) translateY(0); opacity: 1; } }
+    .modal-close {
+      position: absolute; top: 16px; right: 16px; background: none; border: none;
+      font-size: 20px; cursor: pointer; color: #94a3b8; width: 36px; height: 36px;
+      border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    }
+    .modal-close:hover { background: #f1f5f9; color: #1e293b; }
+    .modal-content h3 { font-size: 1.5rem; margin-bottom: 6px; color: var(--color-primary); }
+    .modal-property-title { color: var(--color-text-secondary); font-size: 14px; margin-bottom: 24px; }
+
+    .form-group { margin-bottom: 18px; }
+    .form-group label { display: block; margin-bottom: 6px; font-weight: 500; font-size: 14px; color: var(--color-text); }
+    .form-group input, .form-group textarea, .form-group select {
+      width: 100%; padding: 12px 16px; border: 2px solid #e2e8f0; border-radius: 10px;
+      font-size: 14px; font-family: 'Inter', sans-serif; transition: border-color .2s;
+      box-sizing: border-box; background: #fff;
+    }
+    .form-group input:focus, .form-group textarea:focus { outline: none; border-color: var(--color-primary); box-shadow: 0 0 0 3px rgba(30,58,138,.1); }
+    .form-group textarea { resize: vertical; min-height: 80px; }
+    .form-group input.field-error, .form-group textarea.field-error { border-color: #DC2626; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+    /* Chatbot Panel */
+    #chatbot-panel {
+      position: fixed; bottom: 100px; right: 20px; width: 380px; height: 520px;
+      background: #fff; border-radius: 20px; box-shadow: 0 16px 50px rgba(0,0,0,.15);
+      display: none; flex-direction: column; z-index: 9998; overflow: hidden;
+    }
+    #chatbot-panel.active { display: flex; }
+    .chatbot-header { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; background: var(--color-primary); color: #fff; }
+    .chatbot-header-info { display: flex; align-items: center; gap: 12px; }
+    .chatbot-avatar { width: 40px; height: 40px; border-radius: 50%; background: rgba(255,255,255,.2); display: flex; align-items: center; justify-content: center; font-size: 18px; }
+    .chatbot-header-info strong { display: block; font-size: 15px; }
+    .chatbot-header-info small { opacity: .8; font-size: 12px; }
+    .chatbot-close { background: none; border: none; color: #fff; font-size: 18px; cursor: pointer; }
+    .chatbot-messages { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 12px; background: #f8fafc; }
+    .chat-message { display: flex; }
+    .chat-message.user { justify-content: flex-end; }
+    .chat-bubble { max-width: 80%; padding: 10px 14px; border-radius: 16px; font-size: 13px; line-height: 1.5; }
+    .chat-message.bot .chat-bubble { background: #fff; color: #1e293b; border-bottom-left-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+    .chat-message.user .chat-bubble { background: var(--color-primary); color: #fff; border-bottom-right-radius: 4px; }
+    .chatbot-input-area { display: flex; gap: 8px; padding: 12px 16px; border-top: 1px solid #e2e8f0; background: #fff; }
+    .chatbot-input-area input { flex: 1; border: 2px solid #e2e8f0; border-radius: 24px; padding: 10px 16px; font-size: 13px; outline: none; font-family: 'Inter', sans-serif; }
+    .chatbot-input-area input:focus { border-color: var(--color-primary); }
+    .chatbot-input-area button { width: 40px; height: 40px; border-radius: 50%; border: none; background: var(--color-primary); color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+
+    @media (max-width: 768px) {
+      .form-row { grid-template-columns: 1fr; }
+      #chatbot-panel { width: calc(100% - 32px); right: 16px; bottom: 90px; height: 60vh; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ==================== NAVBAR ==================== -->
+  <nav class="navbar scrolled" id="navbar">
+    <div class="container">
+      <a href="index.html" class="navbar-logo">
+        <i class="fa-solid fa-building"></i> MOV<span>AI</span>
+      </a>
+      <div class="navbar-links">
+        <a href="index.html">Início</a>
+        <a href="index.html#properties">Imóveis</a>
+        <a href="index.html#how-it-works">Como Funciona</a>
+        <a href="index.html#ai-features">IA</a>
+        <a href="index.html#contact">Contato</a>
+      </div>
+      <div class="navbar-actions">
+        <a href="../admin/login.html" class="btn btn-outline btn-sm">Entrar</a>
+        <a href="cadasatro.html" class="btn btn-primary btn-sm">Cadastre-se</a>
+      </div>
+      <button class="navbar-toggle" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ==================== MAIN CONTENT ==================== -->
+  <main class="property-detail-page">
+    <div class="container">
+
+      <!-- Back Navigation -->
+      <div class="back-nav">
+        <a href="index.html#properties"><i class="fa-solid fa-arrow-left"></i> Voltar aos imóveis</a>
+      </div>
+
+      <!-- Loading state -->
+      <div id="property-loading" class="loading-container">
+        <i class="fa-solid fa-spinner fa-spin"></i>
+        <p>Carregando informações do imóvel...</p>
+      </div>
+
+      <!-- Property Content (hidden until loaded) -->
+      <div id="property-detail" style="display:none;">
+
+        <!-- Hero: Gallery + Sidebar -->
+        <div class="property-hero">
+          <!-- Gallery -->
+          <div class="gallery">
+            <img id="gallery-main" class="gallery-main" src="" alt="Imóvel">
+            <span class="gallery-badge" id="gallery-badge"></span>
+            <div class="gallery-count" id="gallery-count">
+              <i class="fa-solid fa-image"></i> <span>0 fotos</span>
+            </div>
+            <div class="gallery-thumbs" id="gallery-thumbs"></div>
+          </div>
+
+          <!-- Sidebar -->
+          <div class="property-sidebar">
+            <div class="sidebar-card">
+              <div class="property-price-tag" id="detail-price"></div>
+              <div class="property-price-type" id="detail-transaction"></div>
+
+              <div class="property-meta-grid">
+                <div class="property-meta-item">
+                  <i class="fa-solid fa-bed"></i>
+                  <div>
+                    <div class="meta-label">Quartos</div>
+                    <div class="meta-value" id="detail-bedrooms">-</div>
+                  </div>
+                </div>
+                <div class="property-meta-item">
+                  <i class="fa-solid fa-bath"></i>
+                  <div>
+                    <div class="meta-label">Banheiros</div>
+                    <div class="meta-value" id="detail-bathrooms">-</div>
+                  </div>
+                </div>
+                <div class="property-meta-item">
+                  <i class="fa-solid fa-ruler-combined"></i>
+                  <div>
+                    <div class="meta-label">Área</div>
+                    <div class="meta-value" id="detail-area">-</div>
+                  </div>
+                </div>
+                <div class="property-meta-item">
+                  <i class="fa-solid fa-car"></i>
+                  <div>
+                    <div class="meta-label">Vagas</div>
+                    <div class="meta-value" id="detail-parking">-</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="sidebar-actions">
+                <button class="btn btn-primary btn-schedule-visit" id="sidebar-schedule-btn">
+                  <i class="fa-solid fa-calendar-check"></i> Agendar Visita
+                </button>
+                <a href="#property-contact-form" class="btn btn-outline">
+                  <i class="fa-solid fa-envelope"></i> Enviar Mensagem
+                </a>
+                <a href="https://wa.me/5511999990000" target="_blank" class="btn btn-whatsapp">
+                  <i class="fa-brands fa-whatsapp"></i> WhatsApp
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Content: Description + Contact Form -->
+        <div class="property-content">
+          <div class="property-main">
+            <!-- Title & Location -->
+            <div class="content-card">
+              <h1 id="detail-title" style="font-size:1.75rem;margin-bottom:8px;color:var(--color-text);"></h1>
+              <div class="location-text">
+                <i class="fa-solid fa-location-dot"></i>
+                <span id="detail-location"></span>
+              </div>
+              <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                <span id="detail-type-badge" style="background:var(--color-primary);color:#fff;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600;"></span>
+                <span id="detail-status-badge" style="background:#059669;color:#fff;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600;"></span>
+              </div>
+            </div>
+
+            <!-- Description -->
+            <div class="content-card">
+              <h3><i class="fa-solid fa-align-left"></i> Descrição</h3>
+              <div class="property-description" id="detail-description">
+                <p>Carregando descrição...</p>
+              </div>
+            </div>
+
+            <!-- Features -->
+            <div class="content-card">
+              <h3><i class="fa-solid fa-list-check"></i> Características</h3>
+              <div class="features-grid" id="detail-features">
+              </div>
+            </div>
+
+            <!-- Location -->
+            <div class="content-card">
+              <h3><i class="fa-solid fa-map-location-dot"></i> Localização</h3>
+              <div class="location-text">
+                <i class="fa-solid fa-location-dot"></i>
+                <span id="detail-full-address"></span>
+              </div>
+              <div class="map-placeholder">
+                <i class="fa-solid fa-map"></i>&nbsp; Mapa em breve
+              </div>
+            </div>
+          </div>
+
+          <!-- Contact sidebar -->
+          <div class="property-sidebar">
+            <div class="sidebar-card" id="property-contact-form">
+              <h3 style="font-size:1.1rem;color:var(--color-primary);margin-bottom:16px;">
+                <i class="fa-solid fa-paper-plane"></i> Tenho interesse neste imóvel
+              </h3>
+              <form id="property-interest-form" class="sidebar-form">
+                <input type="hidden" name="property_id" id="interest-property-id">
+                <div class="form-group">
+                  <label for="interest-name">Nome *</label>
+                  <input type="text" id="interest-name" name="name" placeholder="Seu nome" required>
+                </div>
+                <div class="form-group">
+                  <label for="interest-email">Email *</label>
+                  <input type="email" id="interest-email" name="email" placeholder="seu@email.com" required>
+                </div>
+                <div class="form-group">
+                  <label for="interest-phone">Telefone</label>
+                  <input type="tel" id="interest-phone" name="phone" placeholder="(11) 99999-0000">
+                </div>
+                <div class="form-group">
+                  <label for="interest-message">Mensagem</label>
+                  <textarea id="interest-message" name="message" placeholder="Gostaria de mais informações sobre este imóvel..." rows="3"></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width:100%;padding:12px;border:none;cursor:pointer;font-family:'Inter',sans-serif;font-size:14px;font-weight:600;border-radius:10px;display:flex;align-items:center;justify-content:center;gap:8px;">
+                  <i class="fa-solid fa-paper-plane"></i> Enviar
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+
+        <!-- Related Properties -->
+        <div class="related-section">
+          <h2><i class="fa-solid fa-building" style="color:var(--color-primary);"></i> Imóveis Relacionados</h2>
+          <div class="related-grid" id="related-properties">
+          </div>
+        </div>
+
+      </div><!-- /#property-detail -->
+    </div>
+  </main>
+
+  <!-- ==================== FOOTER ==================== -->
+  <footer class="footer" id="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <a href="index.html" class="navbar-logo"><i class="fa-solid fa-building"></i> MOV<span>AI</span></a>
+          <p>Plataforma inteligente de busca imobiliária com IA.</p>
+          <div class="footer-social">
+            <a href="#" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+            <a href="#" aria-label="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
+            <a href="#" aria-label="LinkedIn"><i class="fa-brands fa-linkedin-in"></i></a>
+          </div>
+        </div>
+        <div class="footer-col">
+          <h4>Plataforma</h4>
+          <ul>
+            <li><a href="index.html#properties">Imóveis</a></li>
+            <li><a href="index.html#how-it-works">Como Funciona</a></li>
+            <li><a href="index.html#ai-features">Recursos IA</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Suporte</h4>
+          <ul>
+            <li><a href="index.html#contact">Fale Conosco</a></li>
+            <li><a href="#">FAQ</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>&copy; 2026 MOVAI. Todos os direitos reservados.</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ==================== SCHEDULE VISIT MODAL ==================== -->
+  <div class="modal" id="schedule-modal">
+    <div class="modal-overlay"></div>
+    <div class="modal-content">
+      <button class="modal-close" aria-label="Fechar"><i class="fa-solid fa-xmark"></i></button>
+      <h3><i class="fa-solid fa-calendar-check"></i> Agendar Visita</h3>
+      <p class="modal-property-title"></p>
+      <form id="schedule-form">
+        <input type="hidden" name="property_id">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="schedule-name">Nome *</label>
+            <input type="text" id="schedule-name" name="name" placeholder="Seu nome completo" required>
+          </div>
+          <div class="form-group">
+            <label for="schedule-email">Email</label>
+            <input type="email" id="schedule-email" name="email" placeholder="seu@email.com">
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="schedule-phone">Telefone</label>
+          <input type="tel" id="schedule-phone" name="phone" placeholder="(11) 99999-0000">
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="schedule-date">Data *</label>
+            <input type="date" id="schedule-date" name="date" required>
+          </div>
+          <div class="form-group">
+            <label for="schedule-time">Horário *</label>
+            <input type="time" id="schedule-time" name="time" required>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="schedule-notes">Observações</label>
+          <textarea id="schedule-notes" name="notes" placeholder="Alguma preferência?" rows="3"></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary btn-lg" style="width:100%;">
+          <i class="fa-solid fa-calendar-check"></i> Confirmar Agendamento
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==================== CHATBOT FAB ==================== -->
+  <button class="chatbot-fab" aria-label="Abrir chatbot">
+    <i class="fa-solid fa-comments"></i>
+  </button>
+
+  <!-- Scripts -->
+  <script src="../js/api.js"></script>
+  <script src="../js/main.js"></script>
+  <script>
+    /* ============================================
+       Property Detail Page Logic
+       ============================================ */
+    ;(function () {
+      'use strict';
+
+      // Wait for DOM to be ready
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initPropertyPage);
+      } else {
+        initPropertyPage();
+      }
+
+      function initPropertyPage() {
+        const params = new URLSearchParams(window.location.search);
+        const propertyId = params.get('id');
+
+        if (!propertyId) {
+          showError('Imóvel não encontrado. Nenhum ID especificado.');
+          return;
+        }
+
+        loadProperty(propertyId).catch(function(err) {
+          console.error('loadProperty failed:', err);
+          showFallbackProperty(propertyId);
+        });
+        setupInterestForm();
+      }
+
+      async function loadProperty(id) {
+        let apiData = null;
+        try {
+          const res = await MovaiAPI.properties.getById(id);
+          if (res.success && res.data) {
+            apiData = res.data;
+          }
+        } catch (err) {
+          console.warn('API indisponível, usando dados locais:', err.message);
+        }
+
+        try {
+          if (apiData) {
+            renderProperty(apiData);
+            loadRelatedProperties(apiData);
+          } else {
+            showFallbackProperty(id);
+          }
+        } catch (renderErr) {
+          console.error('Erro ao renderizar imóvel:', renderErr);
+          showFallbackProperty(id);
+        }
+      }
+
+      // Fallback placeholder image (inline SVG data URI - no external dependency)
+      const FALLBACK_IMG = 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600"><rect fill="%231e3a8a" width="800" height="600"/><rect fill="%23162d6b" x="0" y="300" width="800" height="300"/><text x="400" y="270" text-anchor="middle" font-family="Arial,sans-serif" font-size="32" fill="%23ffffff" opacity="0.8">📷 Imagem Indisponível</text><text x="400" y="320" text-anchor="middle" font-family="Arial,sans-serif" font-size="18" fill="%23ffffff" opacity="0.5">MOVAI Imóveis</text></svg>');
+
+      function resolveImgUrl(img) {
+        if (!img) return FALLBACK_IMG;
+        if (img.startsWith('http')) return img;
+        if (img.startsWith('data:')) return img;
+        // Build absolute URL from backend
+        const baseUrl = MovaiAPI.BASE_URL.replace('/api', '');
+        return baseUrl + (img.startsWith('/') ? '' : '/') + img;
+      }
+
+      // Add fallback on image load error
+      function addImgFallback(imgEl) {
+        imgEl.onerror = function() {
+          if (this.src !== FALLBACK_IMG) {
+            console.warn('Image failed to load:', this.src);
+            this.src = FALLBACK_IMG;
+          }
+        };
+      }
+
+      function renderProperty(p) {
+        document.getElementById('property-loading').style.display = 'none';
+        document.getElementById('property-detail').style.display = 'block';
+
+        // Title
+        document.title = `MOVAI — ${p.title}`;
+        document.getElementById('detail-title').textContent = p.title;
+        document.getElementById('detail-location').textContent = `${p.location}${p.city ? ', ' + p.city : ''}${p.state ? ' - ' + p.state : ''}`;
+        document.getElementById('detail-full-address').textContent = `${p.address || p.location}${p.city ? ', ' + p.city : ''}${p.state ? ' - ' + p.state : ''}`;
+
+        // Price
+        const price = parseFloat(p.price) || 0;
+        document.getElementById('detail-price').textContent = 'R$ ' + price.toLocaleString('pt-BR', { minimumFractionDigits: 0 });
+        const transLabels = { venda: 'Venda', aluguel: 'Aluguel/mês', temporada: 'Temporada' };
+        document.getElementById('detail-transaction').textContent = transLabels[p.transaction_type] || p.transaction_type || 'Venda';
+
+        // Meta
+        document.getElementById('detail-bedrooms').textContent = p.bedrooms || '-';
+        document.getElementById('detail-bathrooms').textContent = p.bathrooms || '-';
+        document.getElementById('detail-area').textContent = p.area ? p.area + 'm²' : '-';
+        document.getElementById('detail-parking').textContent = p.parking_spots || '-';
+
+        // Badges
+        const typeLabels = { casa: 'Casa', apartamento: 'Apartamento', terreno: 'Terreno', comercial: 'Comercial', cobertura: 'Cobertura', studio: 'Studio' };
+        document.getElementById('detail-type-badge').textContent = typeLabels[p.type] || p.type || '';
+        const statusLabels = { disponivel: 'Disponível', reservado: 'Reservado', vendido: 'Vendido', alugado: 'Alugado' };
+        const statusColors = { disponivel: '#059669', reservado: '#D97706', vendido: '#DC2626', alugado: '#2563EB' };
+        const statusBadge = document.getElementById('detail-status-badge');
+        statusBadge.textContent = statusLabels[p.status] || p.status || '';
+        statusBadge.style.background = statusColors[p.status] || '#059669';
+
+        // Gallery
+        const images = p.images && p.images.length ? p.images : [FALLBACK_IMG];
+        const mainImg = document.getElementById('gallery-main');
+        const thumbsContainer = document.getElementById('gallery-thumbs');
+
+        mainImg.src = resolveImgUrl(images[0]);
+        mainImg.alt = p.title;
+        addImgFallback(mainImg);
+
+        document.getElementById('gallery-badge').textContent = typeLabels[p.type] || p.type;
+        document.getElementById('gallery-count').querySelector('span').textContent = images.length + ' fotos';
+
+        thumbsContainer.innerHTML = '';
+        images.forEach((img, i) => {
+          const thumb = document.createElement('img');
+          thumb.className = 'gallery-thumb' + (i === 0 ? ' active' : '');
+          thumb.src = resolveImgUrl(img);
+          thumb.alt = `Foto ${i + 1}`;
+          addImgFallback(thumb);
+          thumb.addEventListener('click', () => {
+            mainImg.src = thumb.src;
+            thumbsContainer.querySelectorAll('.gallery-thumb').forEach(t => t.classList.remove('active'));
+            thumb.classList.add('active');
+          });
+          thumbsContainer.appendChild(thumb);
+        });
+
+        // Description
+        document.getElementById('detail-description').innerHTML = `<p>${p.description || 'Sem descrição disponível para este imóvel.'}</p>`;
+
+        // Features
+        const featuresGrid = document.getElementById('detail-features');
+        const features = [
+          { icon: 'fa-bed', label: `${p.bedrooms || 0} Quartos` },
+          { icon: 'fa-bath', label: `${p.bathrooms || 0} Banheiros` },
+          { icon: 'fa-ruler-combined', label: `${p.area || 0}m²` },
+          { icon: 'fa-car', label: `${p.parking_spots || 0} Vagas` },
+          { icon: 'fa-building', label: typeLabels[p.type] || p.type },
+          { icon: 'fa-tag', label: transLabels[p.transaction_type] || 'Venda' },
+        ];
+        featuresGrid.innerHTML = features.map(f =>
+          `<div class="feature-item"><i class="fa-solid ${f.icon}"></i> ${f.label}</div>`
+        ).join('');
+
+        // Set property ID for forms
+        document.getElementById('interest-property-id').value = p.id;
+        const scheduleBtn = document.getElementById('sidebar-schedule-btn');
+        if (scheduleBtn) {
+          scheduleBtn.dataset.propertyId = p.id;
+          scheduleBtn.dataset.propertyTitle = p.title;
+        }
+      }
+
+      function showFallbackProperty(id) {
+        var fallbackProperties = {
+          '1': { id: 1, title: 'Apartamento Luxo Jardins', location: 'Jardins, São Paulo', city: 'São Paulo', state: 'SP', address: 'Rua Oscar Freire, 1500', price: 1250000, type: 'apartamento', transaction_type: 'venda', status: 'disponivel', bedrooms: 3, bathrooms: 2, area: 120, parking_spots: 2, description: 'Apartamento de alto padrão com vista panorâmica, acabamento premium e lazer completo. Próximo ao metrô e com fácil acesso às principais vias.', images: ['/uploads/properties/apt_luxo_jardins_1.jpg', '/uploads/properties/apt_luxo_jardins_2.jpg', '/uploads/properties/apt_luxo_jardins_3.jpg'] },
+          '2': { id: 2, title: 'Casa com Piscina Alphaville', location: 'Alphaville, Barueri', city: 'Barueri', state: 'SP', address: 'Alameda dos Ipês, 300', price: 2800000, type: 'casa', transaction_type: 'venda', status: 'disponivel', bedrooms: 4, bathrooms: 3, area: 350, parking_spots: 3, description: 'Casa espaçosa em condomínio fechado, com piscina, churrasqueira e área gourmet. Segurança 24h.', images: ['/uploads/properties/casa_piscina_alpha_1.jpg', '/uploads/properties/casa_piscina_alpha_2.jpg', '/uploads/properties/casa_piscina_alpha_3.jpg'] },
+          '3': { id: 3, title: 'Studio Moderno Vila Madalena', location: 'Vila Madalena, São Paulo', city: 'São Paulo', state: 'SP', address: 'Rua Wisard, 200', price: 3200, type: 'studio', transaction_type: 'aluguel', status: 'disponivel', bedrooms: 1, bathrooms: 1, area: 35, parking_spots: 0, description: 'Studio compacto e funcional, ideal para jovens profissionais. Próximo a bares, restaurantes e transporte público.', images: ['/uploads/properties/studio_vila_mad_1.jpg', '/uploads/properties/studio_vila_mad_2.jpg', '/uploads/properties/studio_vila_mad_3.jpg'] },
+          '4': { id: 4, title: 'Cobertura Duplex Moema', location: 'Moema, São Paulo', city: 'São Paulo', state: 'SP', address: 'Av. Jurema, 450', price: 3500000, type: 'cobertura', transaction_type: 'venda', status: 'reservado', bedrooms: 4, bathrooms: 4, area: 280, parking_spots: 3, description: 'Cobertura duplex com terraço, jacuzzi e vista deslumbrante da cidade. Acabamento de primeira linha.', images: ['/uploads/properties/cobertura_moema_1.jpg', '/uploads/properties/cobertura_moema_2.jpg', '/uploads/properties/cobertura_moema_3.jpg'] },
+          '5': { id: 5, title: 'Sala Comercial Faria Lima', location: 'Faria Lima, São Paulo', city: 'São Paulo', state: 'SP', address: 'Av. Faria Lima, 3000', price: 8500, type: 'comercial', transaction_type: 'aluguel', status: 'disponivel', bedrooms: 0, bathrooms: 2, area: 80, parking_spots: 2, description: 'Sala comercial em edifício corporativo Triple A, com infraestrutura completa e localização privilegiada.', images: ['/uploads/properties/sala_faria_lima_1.jpg', '/uploads/properties/sala_faria_lima_2.jpg', '/uploads/properties/sala_faria_lima_3.jpg'] },
+          '6': { id: 6, title: 'Terreno Granja Viana', location: 'Granja Viana, Cotia', city: 'Cotia', state: 'SP', address: 'Rua das Palmeiras, 100', price: 950000, type: 'terreno', transaction_type: 'venda', status: 'disponivel', bedrooms: 0, bathrooms: 0, area: 500, parking_spots: 0, description: 'Terreno plano em condomínio de alto padrão com infraestrutura completa, pronto para construção.', images: ['/uploads/properties/terreno_granja_1.jpg', '/uploads/properties/terreno_granja_2.jpg'] },
+          '7': { id: 7, title: 'Apartamento Pinheiros', location: 'Pinheiros, São Paulo', city: 'São Paulo', state: 'SP', address: 'Rua dos Pinheiros, 800', price: 780000, type: 'apartamento', transaction_type: 'venda', status: 'vendido', bedrooms: 2, bathrooms: 1, area: 70, parking_spots: 1, description: 'Apartamento de 2 quartos, excelente referência de preço na região.', images: ['/uploads/properties/apt_pinheiros_1.jpg', '/uploads/properties/apt_pinheiros_2.jpg'] }
+        };
+
+        const p = fallbackProperties[id];
+        if (p) {
+          renderProperty(p);
+        } else {
+          showError('Imóvel não encontrado.');
+        }
+      }
+
+      function showError(message) {
+        document.getElementById('property-loading').innerHTML = `
+          <i class="fa-solid fa-circle-exclamation" style="color:#DC2626;"></i>
+          <p>${message}</p>
+          <a href="index.html" class="btn btn-primary" style="margin-top:16px;text-decoration:none;">
+            <i class="fa-solid fa-arrow-left"></i> Voltar à página inicial
+          </a>
+        `;
+      }
+
+      async function loadRelatedProperties(currentProperty) {
+        const container = document.getElementById('related-properties');
+        try {
+          const res = await MovaiAPI.properties.getAll({ limit: 4 });
+          if (res.success && res.data && res.data.data) {
+            const related = res.data.data.filter(p => p.id !== currentProperty.id).slice(0, 3);
+            if (related.length > 0) {
+              renderRelatedProperties(container, related);
+              return;
+            }
+          }
+        } catch (e) { /* fallback below */ }
+
+        // Fallback with static data
+        renderRelatedFallback(container, currentProperty.id);
+      }
+
+      function renderRelatedProperties(container, properties) {
+        container.innerHTML = properties.map(p => {
+          const img = p.images && p.images.length ? (p.images[0].startsWith('http') ? p.images[0] : MovaiAPI.BASE_URL.replace('/api', '') + '/' + p.images[0]) : 'https://www.shutterstock.com/image-vector/real-estate-icon-collection-duotone-260nw-2350617657.jpg';
+          const price = parseFloat(p.price) || 0;
+          return `
+            <div class="property-card" onclick="window.location.href='imovel.html?id=${p.id}'">
+              <img src="${img}" alt="${p.title}" loading="lazy">
+              <div class="property-info">
+                <div class="property-price">R$ ${price.toLocaleString('pt-BR')}</div>
+                <div class="property-title">${p.title}</div>
+                <div class="property-location"><i class="fa-solid fa-location-dot"></i> ${p.location || ''}</div>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+
+      function renderRelatedFallback(container, currentId) {
+        const allProperties = [
+          { id: 1, title: 'Apartamento Luxo Jardins', price: 1250000, location: 'São Paulo, SP', img: '/uploads/properties/apt_luxo_jardins_1.jpg' },
+          { id: 2, title: 'Casa com Piscina Alphaville', price: 2800000, location: 'Barueri, SP', img: '/uploads/properties/casa_piscina_alpha_1.jpg' },
+          { id: 3, title: 'Studio Moderno Vila Madalena', price: 3200, location: 'São Paulo, SP', img: '/uploads/properties/studio_vila_mad_1.jpg' },
+          { id: 4, title: 'Cobertura Duplex Moema', price: 3500000, location: 'São Paulo, SP', img: '/uploads/properties/cobertura_moema_1.jpg' },
+          { id: 5, title: 'Sala Comercial Faria Lima', price: 8500, location: 'São Paulo, SP', img: '/uploads/properties/sala_faria_lima_1.jpg' },
+          { id: 6, title: 'Terreno Granja Viana', price: 950000, location: 'Cotia, SP', img: '/uploads/properties/terreno_granja_1.jpg' },
+          { id: 7, title: 'Apartamento Pinheiros', price: 780000, location: 'São Paulo, SP', img: '/uploads/properties/apt_pinheiros_1.jpg' },
+        ];
+        const related = allProperties.filter(p => String(p.id) !== String(currentId)).slice(0, 3);
+        container.innerHTML = related.map(p => `
+          <div class="property-card" onclick="window.location.href='imovel.html?id=${p.id}'">
+            <img src="${resolveImgUrl(p.img)}" alt="${p.title}" loading="lazy" onerror="this.src='${FALLBACK_IMG}'">
+            <div class="property-info">
+              <div class="property-price">R$ ${p.price.toLocaleString('pt-BR')}</div>
+              <div class="property-title">${p.title}</div>
+              <div class="property-location"><i class="fa-solid fa-location-dot"></i> ${p.location}</div>
+            </div>
+          </div>
+        `).join('');
+      }
+
+      function setupInterestForm() {
+        const form = document.getElementById('property-interest-form');
+        if (!form) return;
+
+        form.addEventListener('submit', async (e) => {
+          e.preventDefault();
+
+          const name = form.querySelector('[name="name"]').value.trim();
+          const email = form.querySelector('[name="email"]').value.trim();
+          const phone = form.querySelector('[name="phone"]').value.trim();
+          const message = form.querySelector('[name="message"]').value.trim();
+          const propertyId = form.querySelector('[name="property_id"]').value;
+
+          // Simple validation
+          if (!name) {
+            form.querySelector('[name="name"]').classList.add('field-error');
+            return;
+          }
+          if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+            form.querySelector('[name="email"]').classList.add('field-error');
+            return;
+          }
+
+          const btn = form.querySelector('button[type="submit"]');
+          const origText = btn.innerHTML;
+          btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Enviando...';
+          btn.disabled = true;
+
+          try {
+            await MovaiAPI.leads.create({
+              name,
+              email,
+              phone,
+              message: message || `Tenho interesse no imóvel #${propertyId}`,
+              property_id: propertyId ? parseInt(propertyId) : null,
+              source: 'website',
+            });
+
+            // Use the global showToast from main.js (it's in the global scope via the IIFE's dom manipulation)
+            const toastContainer = document.getElementById('toast-container') || (() => {
+              const c = document.createElement('div');
+              c.id = 'toast-container';
+              c.style.cssText = 'position:fixed;top:90px;right:20px;z-index:10000;display:flex;flex-direction:column;gap:10px;max-width:400px;';
+              document.body.appendChild(c);
+              return c;
+            })();
+
+            const toast = document.createElement('div');
+            toast.innerHTML = `<div style="display:flex;align-items:center;gap:12px;padding:14px 20px;background:#fff;border-radius:12px;box-shadow:0 8px 30px rgba(0,0,0,.12);border-left:4px solid #059669;font-size:14px;font-family:'Inter',sans-serif;">
+              <i class="fa-solid fa-circle-check" style="color:#059669;font-size:18px;"></i>
+              <span style="flex:1;color:#1e293b;">Mensagem enviada com sucesso! Entraremos em contato.</span>
+            </div>`;
+            toastContainer.appendChild(toast);
+            setTimeout(() => toast.remove(), 4000);
+
+            form.reset();
+          } catch (err) {
+            const toastContainer = document.getElementById('toast-container') || (() => {
+              const c = document.createElement('div');
+              c.id = 'toast-container';
+              c.style.cssText = 'position:fixed;top:90px;right:20px;z-index:10000;display:flex;flex-direction:column;gap:10px;max-width:400px;';
+              document.body.appendChild(c);
+              return c;
+            })();
+            const toast = document.createElement('div');
+            toast.innerHTML = `<div style="display:flex;align-items:center;gap:12px;padding:14px 20px;background:#fff;border-radius:12px;box-shadow:0 8px 30px rgba(0,0,0,.12);border-left:4px solid #DC2626;font-size:14px;font-family:'Inter',sans-serif;">
+              <i class="fa-solid fa-circle-xmark" style="color:#DC2626;font-size:18px;"></i>
+              <span style="flex:1;color:#1e293b;">${err.message || 'Erro ao enviar. Tente novamente.'}</span>
+            </div>`;
+            toastContainer.appendChild(toast);
+            setTimeout(() => toast.remove(), 4000);
+          } finally {
+            btn.innerHTML = origText;
+            btn.disabled = false;
+          }
+        });
+
+        // Clear errors on input
+        form.querySelectorAll('input, textarea').forEach(el => {
+          el.addEventListener('focus', () => el.classList.remove('field-error'));
+        });
+      }
+
+    })();
+  </script>
+</body>
+</html>

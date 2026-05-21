@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MOVAI Admin - Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+  <div class="admin-layout">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="logo">MOV<span>AI</span></div>
+        <span class="badge">Admin</span>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-section">Principal</div>
+        <a href="dashboard.html" class="nav-item" data-page="dashboard"><i class="fas fa-th-large"></i> Dashboard</a>
+        <div class="nav-section">Gestão</div>
+        <a href="properties.html" class="nav-item" data-page="properties"><i class="fas fa-building"></i> Imóveis</a>
+        <a href="leads.html" class="nav-item" data-page="leads"><i class="fas fa-user-plus"></i> Leads</a>
+        <a href="appointments.html" class="nav-item" data-page="appointments"><i class="fas fa-calendar-alt"></i> Agendamentos</a>
+        <div class="nav-section">Sistema</div>
+        <a href="users.html" class="nav-item" data-page="users"><i class="fas fa-users-cog"></i> Usuários</a>
+        <a href="chatbot.html" class="nav-item" data-page="chatbot"><i class="fas fa-robot"></i> Chatbot</a>
+        <a href="reports.html" class="nav-item" data-page="reports"><i class="fas fa-chart-bar"></i> Relatórios</a>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="user-avatar">U</div>
+        <div class="user-info">
+          <div class="user-name">Usuário</div>
+          <div class="user-role">Admin</div>
+        </div>
+        <button class="logout-btn" title="Sair"><i class="fas fa-sign-out-alt"></i></button>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="main-content">
+      <header class="top-header">
+        <button class="menu-toggle"><i class="fas fa-bars"></i></button>
+        <h2 class="page-title">Dashboard</h2>
+        <div class="header-actions">
+          <div class="header-search">
+            <i class="fas fa-search"></i>
+            <input type="text" placeholder="Buscar..." id="globalSearch">
+          </div>
+        </div>
+      </header>
+
+      <div class="page-content">
+        <!-- Stats Cards -->
+        <div class="stats-grid" id="statsGrid">
+          <div class="stat-card">
+            <div class="stat-icon blue"><i class="fas fa-building"></i></div>
+            <div><div class="stat-value" id="statProperties">-</div><div class="stat-label">Imóveis Cadastrados</div></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon green"><i class="fas fa-check-circle"></i></div>
+            <div><div class="stat-value" id="statAvailable">-</div><div class="stat-label">Imóveis Disponíveis</div></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon purple"><i class="fas fa-user-plus"></i></div>
+            <div><div class="stat-value" id="statLeads">-</div><div class="stat-label">Total de Leads</div></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon yellow"><i class="fas fa-calendar-check"></i></div>
+            <div><div class="stat-value" id="statAppointments">-</div><div class="stat-label">Agendamentos Pendentes</div></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon red"><i class="fas fa-dollar-sign"></i></div>
+            <div><div class="stat-value" id="statValue">-</div><div class="stat-label">Valor Total Disponível</div></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon blue"><i class="fas fa-comments"></i></div>
+            <div><div class="stat-value" id="statChats">-</div><div class="stat-label">Conversas Chatbot</div></div>
+          </div>
+        </div>
+
+        <!-- Charts -->
+        <div class="charts-grid">
+          <div class="card">
+            <div class="card-header"><h3>Leads por Mês</h3></div>
+            <div class="card-body"><div class="chart-container"><canvas id="leadsMonthChart"></canvas></div></div>
+          </div>
+          <div class="card">
+            <div class="card-header"><h3>Imóveis por Status</h3></div>
+            <div class="card-body"><div class="chart-container"><canvas id="propertiesStatusChart"></canvas></div></div>
+          </div>
+          <div class="card">
+            <div class="card-header"><h3>Leads por Fonte</h3></div>
+            <div class="card-body"><div class="chart-container"><canvas id="leadsSourceChart"></canvas></div></div>
+          </div>
+          <div class="card">
+            <div class="card-header"><h3>Vendas por Mês</h3></div>
+            <div class="card-body"><div class="chart-container"><canvas id="salesMonthChart"></canvas></div></div>
+          </div>
+        </div>
+
+        <!-- Recent Activities & Upcoming Appointments -->
+        <div class="charts-grid">
+          <div class="card">
+            <div class="card-header"><h3>Atividades Recentes</h3></div>
+            <div class="card-body">
+              <ul class="activity-list" id="activityList">
+                <li class="empty-state"><i class="fas fa-clock"></i><p>Carregando...</p></li>
+              </ul>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header"><h3>Próximos Agendamentos</h3><a href="appointments.html" class="btn btn-sm btn-outline">Ver Todos</a></div>
+            <div class="card-body no-padding">
+              <div class="table-wrapper">
+                <table>
+                  <thead><tr><th>Data</th><th>Imóvel</th><th>Lead</th><th>Status</th></tr></thead>
+                  <tbody id="upcomingTable"><tr><td colspan="4" style="text-align:center;padding:2rem;color:var(--gray-400)">Carregando...</td></tr></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="js/admin.js"></script>
+  <script src="js/charts.js"></script>
+  <script>
+    let charts = {};
+
+    async function loadDashboard() {
+      try {
+        const [statsRes, chartsRes] = await Promise.all([
+          Api.get('/dashboard/stats'),
+          Api.get('/dashboard/charts')
+        ]);
+
+        const stats = statsRes.data;
+        document.getElementById('statProperties').textContent = stats.properties?.total || 0;
+        document.getElementById('statAvailable').textContent = stats.properties?.available || 0;
+        document.getElementById('statLeads').textContent = stats.leads?.total || 0;
+        document.getElementById('statAppointments').textContent = stats.appointments?.pending || 0;
+        document.getElementById('statValue').textContent = formatCurrency(stats.properties?.totalValue || 0);
+        document.getElementById('statChats').textContent = stats.chatConversations || 0;
+
+        // Charts
+        const chartData = chartsRes.data;
+
+        // Leads by month
+        if (chartData.leadsByMonth) {
+          const labels = chartData.leadsByMonth.map(i => i.month);
+          charts.leadsMonth = destroyChart(charts.leadsMonth);
+          charts.leadsMonth = createBarChart(
+            document.getElementById('leadsMonthChart'),
+            labels,
+            [{ label: 'Leads', data: chartData.leadsByMonth.map(i => i.count), backgroundColor: ChartColors.palette[0], borderRadius: 6 }]
+          );
+        }
+
+        // Properties by status
+        if (chartData.propertiesByStatus) {
+          charts.propertiesStatus = destroyChart(charts.propertiesStatus);
+          charts.propertiesStatus = createDoughnutChart(
+            document.getElementById('propertiesStatusChart'),
+            chartData.propertiesByStatus.map(i => i.status),
+            chartData.propertiesByStatus.map(i => i.count)
+          );
+        }
+
+        // Leads by source
+        if (chartData.leadsBySource) {
+          charts.leadsSource = destroyChart(charts.leadsSource);
+          charts.leadsSource = createPieChart(
+            document.getElementById('leadsSourceChart'),
+            chartData.leadsBySource.map(i => i.source),
+            chartData.leadsBySource.map(i => i.count)
+          );
+        }
+
+        // Sales by month
+        if (chartData.salesByMonth) {
+          const labels = chartData.salesByMonth.map(i => i.month);
+          charts.salesMonth = destroyChart(charts.salesMonth);
+          charts.salesMonth = createLineChart(
+            document.getElementById('salesMonthChart'),
+            labels,
+            [{
+              label: 'Valor Total (R$)',
+              data: chartData.salesByMonth.map(i => i.totalValue || 0),
+              borderColor: ChartColors.success,
+              backgroundColor: 'rgba(22,163,74,.1)',
+              fill: true,
+            }]
+          );
+        }
+
+        // Load upcoming appointments
+        loadUpcoming();
+        loadActivities(chartData);
+
+      } catch (err) {
+        console.error('Dashboard error:', err);
+        Toast.error('Erro ao carregar dashboard');
+      }
+    }
+
+    async function loadUpcoming() {
+      try {
+        const res = await Api.get('/appointments?limit=5&status=pendente');
+        const tbody = document.getElementById('upcomingTable');
+        const items = res.data?.appointments || res.data || [];
+        if (!items.length) {
+          tbody.innerHTML = '<tr><td colspan="4" class="empty-state"><p>Nenhum agendamento pendente</p></td></tr>';
+          return;
+        }
+        tbody.innerHTML = items.map(a => `
+          <tr>
+            <td>${formatDate(a.date)} ${a.time || ''}</td>
+            <td>${a.property_title || '-'}</td>
+            <td>${a.lead_name || '-'}</td>
+            <td>${getStatusBadge(a.status)}</td>
+          </tr>
+        `).join('');
+      } catch (err) { console.error(err); }
+    }
+
+    function loadActivities(chartData) {
+      const list = document.getElementById('activityList');
+      const activities = [];
+
+      // Generate activities from chart data
+      if (chartData.leadsByStatus) {
+        chartData.leadsByStatus.forEach(s => {
+          activities.push({
+            icon: 'fa-user-plus', iconBg: 'var(--info-bg)', iconColor: 'var(--info)',
+            text: `${s.count} leads com status "${s.status}"`, time: 'Resumo atual'
+          });
+        });
+      }
+      if (chartData.appointmentsByStatus) {
+        chartData.appointmentsByStatus.forEach(s => {
+          activities.push({
+            icon: 'fa-calendar', iconBg: 'var(--warning-bg)', iconColor: 'var(--warning)',
+            text: `${s.count} agendamentos "${s.status}"`, time: 'Resumo atual'
+          });
+        });
+      }
+
+      if (!activities.length) {
+        list.innerHTML = '<li class="empty-state"><i class="fas fa-inbox"></i><p>Nenhuma atividade recente</p></li>';
+        return;
+      }
+
+      list.innerHTML = activities.slice(0, 8).map(a => `
+        <li class="activity-item">
+          <div class="activity-icon" style="background:${a.iconBg};color:${a.iconColor}"><i class="fas ${a.icon}"></i></div>
+          <div class="activity-content">
+            <p>${a.text}</p>
+            <div class="activity-time">${a.time}</div>
+          </div>
+        </li>
+      `).join('');
+    }
+
+    loadDashboard();
+  </script>
+</body>
+</html>
